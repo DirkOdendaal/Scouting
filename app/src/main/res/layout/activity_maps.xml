@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/relativeLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff">
+
+    <fragment
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MapsActivity"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp" />
+
+    <!--        style="@style/Widget.MaterialComponents.Button.TextButton"-->
+
+    <TextView
+        android:id="@+id/textViewpddtest"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:text="PDDD's:"
+        android:visibility="gone"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+<!--    <com.google.android.material.button.MaterialButton-->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonScout"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="#FFFFFF"
+        android:backgroundTintMode="src_in"
+        android:text="Scout"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+        android:textSize="14sp"
+        app:icon="@drawable/pinlrgc"
+        app:iconSize="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/map"
+        app:layout_constraintTop_toTopOf="@+id/map"
+        app:layout_constraintVertical_bias="0.84000003"
+        app:strokeColor="#005CFF"
+        app:strokeWidth="2dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonphoto"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Photo"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/map"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/imageView"
+        android:layout_width="99dp"
+        android:layout_height="26dp"
+        android:layout_marginEnd="6dp"
+        android:layout_marginBottom="6dp"
+        android:scaleType="fitCenter"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"
+        app:srcCompat="@drawable/ftlogo" />
+
+    <ImageButton
+        android:id="@+id/imgbutLayers"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="64dp"
+        android:background="@drawable/roundedcorners"
+        android:scaleType="fitCenter"
+        android:src="@drawable/layers"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageButton
+        android:id="@+id/imgbutTrack"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="12dp"
+        android:background="@drawable/roundedcorners"
+        android:scaleType="fitCenter"
+        android:src="@drawable/recenter3"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Spinner
+        android:id="@+id/spinnerHistory"
+        style="@android:style/Widget.Material.Light.Spinner.Underlined"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="#7C4971AA"
+        android:fadingEdge="none"
+        android:spinnerMode="dropdown"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="@+id/map"
+        app:layout_constraintTop_toBottomOf="@+id/imgbutLayers"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/btnClearHistory"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="#FB5C5C"
+        android:text="Clear History"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@+id/map"
+        app:layout_constraintStart_toStartOf="@+id/map"
+        app:layout_constraintTop_toTopOf="@+id/map" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="12dp"
+        android:hint="Username"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/map"
+        app:layout_constraintStart_toStartOf="@+id/map"
+        app:layout_constraintTop_toBottomOf="@+id/imgbutLayers"
+        app:layout_constraintVertical_bias="0.0">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/txtUsername"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="32dp"
+            android:layout_marginEnd="32dp"
+            android:inputType="text"
+            android:maxLines="1"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/map"
+            app:layout_constraintTop_toTopOf="parent" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:context=".MainActivity">
+
+        <FrameLayout
+            android:id="@+id/standardBottomSheet"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#F50C3AAF"
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+            <!--        style="?attr/bottomSheetStyle"-->
+            <!--            android:background="#3651DA"-->
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <Switch
+                    android:id="@+id/swtLowSpec"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="24dp"
+                    android:layout_marginBottom="24dp"
+                    android:shadowColor="#706D6D"
+                    android:text="Enable Low spec-mode"
+                    android:textColor="#FFFFFF"
+                    android:textColorHighlight="#FF9800"
+                    android:textColorLink="#FF5722"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+                <androidx.appcompat.widget.AppCompatImageButton
+                    android:id="@+id/btnRefresh"
+                    style="@style/Widget.MaterialComponents.Button.TextButton"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:layout_weight="1"
+                    android:background="#00FFFFFF"
+                    android:backgroundTint="#00FFFFFF"
+                    android:src="@android:drawable/stat_notify_sync"
+                    app:icon="@android:drawable/stat_notify_sync"
+                    app:iconTint="#FFFFFF"
+                    app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.0" />
+
+                <TextView
+                    android:id="@+id/txtCount"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:textColor="#FFFFFF"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <LinearLayout
+                    android:id="@+id/linearLayout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintVertical_bias="0.13999999">
+
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginTop="20dp"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnInbox"
+                                style="@style/Widget.MaterialComponents.Button.TextButton"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:backgroundTint="#FFFFFF"
+                                android:insetLeft="10dp"
+                                android:insetRight="10dp"
+                                android:text="Inbox"
+                                android:textAlignment="viewStart"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+                                android:textSize="14sp"
+                                app:icon="@drawable/inbox"
+                                app:iconPadding="16dp"
+                                app:iconSize="30dp"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintVertical_bias="1.0" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_weight="5"
+                            android:visibility="gone">
+
+                            <TextView
+                                android:id="@+id/textView3"
+                                android:layout_width="0dp"
+                                android:layout_height="0dp"
+                                android:layout_marginStart="6dp"
+                                android:layout_marginTop="6dp"
+                                android:layout_marginEnd="6dp"
+                                android:layout_marginBottom="6dp"
+                                android:background="@drawable/roundedcornersred2"
+                                android:gravity="center"
+                                android:text="99+"
+                                android:textColor="#FFFFFF"
+                                android:textSize="24sp"
+                                android:textStyle="bold"
+                                android:typeface="normal"
+                                android:visibility="visible"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnHistory"
+                                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:backgroundTint="#FFFFFF"
+                                android:insetLeft="10dp"
+                                android:insetRight="10dp"
+                                android:text="History"
+                                android:textAlignment="viewStart"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+                                android:textSize="14sp"
+                                app:icon="@drawable/history"
+                                app:iconPadding="16dp"
+                                app:iconSize="30dp"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintVertical_bias="1.0"
+                                app:strokeColor="#7DD7FA"
+                                app:strokeWidth="2dp" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnPost"
+                                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:backgroundTint="#FFFFFF"
+                                android:insetLeft="10dp"
+                                android:insetRight="10dp"
+                                android:text="Re-Send"
+                                android:textAlignment="viewStart"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+                                android:textSize="14sp"
+                                app:icon="@android:drawable/ic_menu_send"
+                                app:iconPadding="16dp"
+                                app:iconSize="30dp"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintVertical_bias="1.0"
+                                app:strokeColor="#7DD7FA"
+                                app:strokeWidth="2dp" />
+
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="1dp"
+                        android:layout_marginTop="8dp"
+                        android:orientation="horizontal"
+                        android:visibility="visible">
+
+                        <androidx.constraintlayout.widget.ConstraintLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:visibility="visible">
+
+                            <com.google.android.material.button.MaterialButton
+                                android:id="@+id/btnLogs"
+                                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:backgroundTint="#FFFFFF"
+                                android:insetLeft="10dp"
+                                android:insetRight="10dp"
+                                android:text="Logs"
+                                android:textAlignment="viewStart"
+                                android:textAppearance="@style/TextAppearance.MaterialComponents.Button"
+                                android:textSize="14sp"
+                                android:visibility="visible"
+                                app:icon="@android:drawable/ic_menu_info_details"
+                                app:iconPadding="16dp"
+                                app:iconSize="30dp"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:layout_constraintStart_toStartOf="parent"
+                                app:layout_constraintTop_toTopOf="parent"
+                                app:layout_constraintVertical_bias="1.0"
+                                app:strokeColor="#7DD7FA"
+                                app:strokeWidth="2dp" />
+                        </androidx.constraintlayout.widget.ConstraintLayout>
+                    </LinearLayout>
+                </LinearLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </FrameLayout>
+
+        <ImageButton
+            android:id="@+id/imageButton1"
+            android:layout_width="60dp"
+            android:layout_height="30dp"
+            android:background="@drawable/roundedcornersred2"
+            android:scaleType="fitCenter"
+            android:visibility="gone"
+            app:layout_anchor="@+id/standardBottomSheet"
+            app:layout_anchorGravity="start|top"
+            app:srcCompat="@drawable/uparroww"
+            tools:srcCompat="@drawable/uparroww" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

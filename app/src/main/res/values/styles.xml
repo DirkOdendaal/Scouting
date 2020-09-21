@@ -1,0 +1,31 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="textAppearanceButton">@style/TextAppearance.App.Button</item>
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.App.SmallComponent</item>
+    </style>
+
+    <style name="TextAppearance.App.Button" parent="TextAppearance.MaterialComponents.Button">
+        <item name="fontFamily">@font/rubik</item>
+        <item name="android:fontFamily">@font/rubik</item>
+    </style>
+
+    <style name="ShapeAppearance.App.SmallComponent" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">6dp</item>
+    </style>
+
+    <style name="FormButton" parent="Theme.AppCompat.Light.DarkActionBar">
+    <item name="colorOnPrimary">@android:color/holo_red_light</item>
+        <item name="colorPrimary">@android:color/holo_orange_dark</item>
+        <item name="colorOnSurface">@android:color/holo_orange_light</item>
+    </style>
+
+
+
+</resources>

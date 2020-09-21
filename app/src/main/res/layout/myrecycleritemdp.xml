@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/linearLayoutCompat"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="3dp"
+        app:cardPreventCornerOverlap="true"
+        app:cardUseCompatPadding="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <RelativeLayout
+            android:id="@+id/RelativeLayoutDP"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/edges">
+
+            <Button
+                android:id="@+id/btnViewRecords"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="74dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="10dp"
+                android:backgroundTint="#FF0202"
+                android:text="Add" />
+
+            <Button
+                android:id="@+id/btnNone"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="4dp"
+                android:layout_toStartOf="@+id/btnViewRecords"
+                android:backgroundTint="#32C800"
+                android:text="None" />
+
+            <TextView
+                android:id="@+id/txtDP"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="6dp"
+                android:layout_toStartOf="@+id/btnNone"
+                android:layout_toEndOf="@+id/imageView4"
+                android:text="DataPoint %#%"
+                android:textColor="#000000"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/txtDetailsRecords"
+                android:layout_width="233dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/txtDP"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="2dp"
+                android:layout_marginEnd="5dp"
+                android:layout_marginBottom="3dp"
+                android:layout_toStartOf="@+id/btnNone"
+                android:layout_toLeftOf="@id/btnViewRecords"
+                android:layout_toEndOf="@+id/imageView4"
+                android:layout_toRightOf="@id/btnViewRecords"
+                android:text="%Details%"
+                android:textColor="#000000" />
+
+            <ImageView
+                android:id="@+id/imageView4"
+                android:layout_width="39dp"
+                android:layout_height="44dp"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="6dp"
+                app:srcCompat="@drawable/leaf" />
+        </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+</LinearLayout>

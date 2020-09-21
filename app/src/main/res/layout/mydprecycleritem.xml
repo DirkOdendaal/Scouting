@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="4dp"
+        android:elevation="4dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/edges"
+            android:padding="0dp">
+
+            <TextView
+                android:id="@+id/txtTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/txtGender"
+                android:layout_marginStart="6dp"
+                android:layout_toEndOf="@+id/txtPos"
+                android:text="%Timestamp%"
+                android:textSize="8sp" />
+
+            <TextView
+                android:id="@+id/txtPos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/txtGender"
+                android:layout_marginStart="4dp"
+                android:layout_toEndOf="@+id/cbInteract"
+                android:text="%Position%"
+                android:textSize="8sp" />
+
+            <TextView
+                android:id="@+id/textDataPoint"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_marginStart="1dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginEnd="0dp"
+                android:layout_toEndOf="@+id/cbInteract"
+                android:text="%Record%"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:textSize="18sp" />
+
+            <TextView
+                android:id="@+id/txtGender"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/textDataPoint"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="0dp"
+                android:layout_toEndOf="@+id/cbInteract"
+                android:text="%PestDetails%"
+                android:textAppearance="?android:textAppearanceMedium"
+                android:textSize="8sp" />
+
+            <CheckBox
+                android:id="@+id/cbInteract"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:id="@+id/txtSev"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textDataPoint"
+                android:layout_alignBottom="@+id/txtGender"
+                android:layout_marginStart="6dp"
+                android:layout_toEndOf="@+id/txtGender"
+                android:text="%Severity%"
+                android:textSize="8sp" />
+
+            <TextView
+                android:id="@+id/txtQuantity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textDataPoint"
+                android:layout_alignBottom="@+id/txtGender"
+                android:layout_marginStart="6dp"
+                android:layout_toEndOf="@+id/txtSev"
+                android:text="%Quantity%"
+                android:textSize="8sp" />
+
+            <ImageView
+                android:id="@+id/imageView2"
+                android:layout_width="33dp"
+                android:layout_height="34dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginTop="7dp"
+                android:layout_marginEnd="8dp"
+                app:srcCompat="@drawable/bug" />
+
+
+        </RelativeLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</LinearLayout>
