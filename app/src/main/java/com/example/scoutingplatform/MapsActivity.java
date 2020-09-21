@@ -165,6 +165,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Switch swtLowSpec;
     BroadcastReceiver brnw;
     TextView txtCount;
+    Button btnLogOut;
     long lastsynctime = 0;
     final static int PERMISSION_ALL = 1;
 
@@ -229,6 +230,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         txtCount = findViewById(R.id.txtCount);
         spinnerhist = findViewById(R.id.spinnerHistory);
         swtLowSpec = findViewById(R.id.swtLowSpec);
+        btnLogOut = findViewById(R.id.btnLogOut);
         SharedPreferences settings = getSharedPreferences("UserInfo", 0);
         swtLowSpec.setChecked(settings.getBoolean("LowSpec", false));
         swtLowSpec.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -577,6 +579,31 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 });
                 androidx.appcompat.app.AlertDialog dialog = builder.create();
                 dialog.show();
+            }
+        });
+
+        btnLogOut.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new AlertDialog.Builder(MapsActivity.this)
+                        .setTitle("Log Out")
+                        .setMessage("Are you sure you wish to log out?")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                SharedPreferences settings = getSharedPreferences("UserInfo", 0);
+                                SharedPreferences.Editor editor = settings.edit();
+                                editor.putString("email", "");
+                                editor.putString("password", "");
+                                editor.putString("DBID", "");
+                                editor.putBoolean("Authorized", false);
+                                editor.commit();
+                                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                                setviewLogin();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, null)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
             }
         });
 
