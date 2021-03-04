@@ -473,6 +473,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     track = false;
                     locked = false;
                 }
+
+
                 return false;
             }
         });
