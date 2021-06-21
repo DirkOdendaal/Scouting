@@ -1,4 +1,5 @@
 package com.example.scoutingplatform;
+
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -8,14 +9,18 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteStatement;
 import android.text.TextUtils;
 import android.util.Log;
+
 import androidx.annotation.Nullable;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
+
     private static final String TAG = "DatabaseHelper";
+    //Block Table
     private static final String BLOCK_TABLE_NAME = "blocks_table";
     private static final String COL0 = "ID";
     private static final String COL1 = "BlockName";
@@ -24,6 +29,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COL4 = "BlockID";
     private static final String COL5 = "SubblockID";
 
+    //Scouting Methods Table
     private static final String METHODS_TABLE_NAME = "methods_table";
     private static final String MCOL0 = "ID";
     private static final String MCOL1 = "Description";
@@ -31,6 +37,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String MCOL3 = "AmountofDataPoints";
     private static final String MCOL4 = "ScanBarcode";
 
+    //PDDD's table
     private static final String PDDD_TABLE_NAME = "pddd_table";
     private static final String PDDD_COL0 = "ID";
     private static final String PDDD_COL1 = "Description";
@@ -40,6 +47,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String PDDD_COL5 = "Phases";
     private static final String PDDD_COL6 = "PossiblePestLocation";
 
+    //Capture Table
     private static final String CAP_TABLE_NAME = "cap_table";
     private static final String CAP_COL0 = "ID";
     private static final String CAP_COL1 = "CapturePoint";
@@ -62,17 +70,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String CAP_COL18 = "BlockID";
     private static final String CAP_COL19 = "Barcode";
 
+    //Photos Table
     private static final String PHOTO_TABLE_NAME = "capphoto_table";
     private static final String PHOTO_COL0 = "ID";
     private static final String PHOTO_COL1 = "CapturePoint";
     private static final String PHOTO_COL2 = "photobase64";
 
 
+    //Tracking Table History
     private static final String LOCH_TABLE_NAME = "loch_table";
     private static final String LHCOL0 = "ID";
     private static final String LHCOL1 = "Coordinates";
     private static final String LHCOL2 = "Date";
 
+    //Log table for responses
     private static final String LOG_TABLE_NAME = "log_table";
     private static final String LOG0 = "ID";
     private static final String LOG1 = "status";
@@ -88,26 +99,60 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         super(context, BLOCK_TABLE_NAME, null, 18);
     }
 
+    //Create Tables
     @Override
     public void onCreate(SQLiteDatabase db) {
+        //Replace with database transactions and not one by one creations
         try {
             String createCapTable = "CREATE TABLE IF NOT EXISTS " + CAP_TABLE_NAME + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    CAP_COL1 + " TEXT, " + CAP_COL2 + " TEXT, " + CAP_COL3 + " TEXT, " + CAP_COL4 + " TEXT, " + CAP_COL5 + " TEXT, " + CAP_COL6 + " TEXT, " + CAP_COL7 + " TEXT, " + CAP_COL8 + " TEXT, " + CAP_COL9 + " TEXT, " + CAP_COL10 + " TEXT, " + CAP_COL11 + " FLOAT, " + CAP_COL12 + " TEXT, " + CAP_COL13 + " TEXT, " + CAP_COL14 + " TEXT, " + CAP_COL15 + " TEXT, " + CAP_COL16 + " TEXT, " + CAP_COL17 + " TEXT, " + CAP_COL18 + " TEXT, " + CAP_COL19 + " TEXT) ";
+                    CAP_COL1 + " TEXT, " +
+                    CAP_COL2 + " TEXT, " +
+                    CAP_COL3 + " TEXT, " +
+                    CAP_COL4 + " TEXT, " +
+                    CAP_COL5 + " TEXT, " +
+                    CAP_COL6 + " TEXT, " +
+                    CAP_COL7 + " TEXT, " +
+                    CAP_COL8 + " TEXT, " +
+                    CAP_COL9 + " TEXT, " +
+                    CAP_COL10 + " TEXT, " +
+                    CAP_COL11 + " FLOAT, " +
+                    CAP_COL12 + " TEXT, " +
+                    CAP_COL13 + " TEXT, " +
+                    CAP_COL14 + " TEXT, " +
+                    CAP_COL15 + " TEXT, " +
+                    CAP_COL16 + " TEXT, " +
+                    CAP_COL17 + " TEXT, " +
+                    CAP_COL18 + " TEXT, " +
+                    CAP_COL19 + " TEXT) ";
 
             String createPhotoTable = "CREATE TABLE IF NOT EXISTS " + PHOTO_TABLE_NAME + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    PHOTO_COL1 + " TEXT, " + PHOTO_COL2 + " BLOB) ";
+                    PHOTO_COL1 + " TEXT, " +
+                    PHOTO_COL2 + " BLOB) ";
 
             String createBlocksTable = "CREATE TABLE IF NOT EXISTS " + BLOCK_TABLE_NAME + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    COL1 + " TEXT, " + COL2 + " TEXT, " + COL3 + " TEXT, " + COL4 + " TEXT, " + COL5 + " TEXT) ";
+                    COL1 + " TEXT, " +
+                    COL2 + " TEXT, " +
+                    COL3 + " TEXT, " +
+                    COL4 + " TEXT, " +
+                    COL5 + " TEXT) ";
 
             String createPDDDTable = "CREATE TABLE IF NOT EXISTS " + PDDD_TABLE_NAME + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    PDDD_COL1 + " TEXT, " + PDDD_COL2 + " INT, " + PDDD_COL3 + " INT, " + PDDD_COL4 + " TEXT, " + PDDD_COL5 + " TEXT, " + PDDD_COL6 + " TEXT) ";
+                    PDDD_COL1 + " TEXT, " +
+                    PDDD_COL2 + " INT, " +
+                    PDDD_COL3 + " INT, " +
+                    PDDD_COL4 + " TEXT, " +
+                    PDDD_COL5 + " TEXT, " +
+                    PDDD_COL6 + " TEXT) ";
 
             String lochTable = "CREATE TABLE IF NOT EXISTS " + LOCH_TABLE_NAME + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    LHCOL1 + " TEXT, " + LHCOL2 + " TEXT) ";
+                    LHCOL1 + " TEXT, " +
+                    LHCOL2 + " TEXT) ";
 
             String createmethodstable = "CREATE TABLE IF NOT EXISTS " + METHODS_TABLE_NAME + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    MCOL1 + " TEXT, " + MCOL2 + " INT, " + MCOL3 + " INT, " + MCOL4 + " INT)";
+                    MCOL1 + " TEXT, " +
+                    MCOL2 + " INT, " +
+                    MCOL3 + " INT, " +
+                    MCOL4 + " INT)";
 
             String createlogtable = "CREATE TABLE IF NOT EXISTS " + LOG_TABLE_NAME + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     LOG1 + " INT, " + LOG2 + " INT, " + LOG3 + " TEXT, " + LOG4 + " TEXT, " + LOG5 + " INT, " + LOG6 + " TEXT, " + LOG7 + " TEXT) ";
@@ -124,8 +169,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    //Drop If app gets updated
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        //Replace with database transactions and not one by one creations
         try {
             db.execSQL("DROP TABLE IF EXISTS " + BLOCK_TABLE_NAME);
             db.execSQL("DROP TABLE IF EXISTS " + PDDD_TABLE_NAME);
@@ -140,10 +187,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    //Insert Blocks
     public void addBlockData(List<Block> blocks) {
+        //This is using Transactions to insert data.
         try {
             SQLiteDatabase db = this.getWritableDatabase();
-            String sql = "INSERT INTO " + BLOCK_TABLE_NAME + " (" + COL1 + "," + COL2 + "," + COL3 + "," + COL4 + "," + COL5 + ") VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO " + BLOCK_TABLE_NAME + " (" +
+                    COL1 + "," +
+                    COL2 + "," +
+                    COL3 + "," +
+                    COL4 + "," +
+                    COL5 + ") " +
+                    "VALUES (?, ?, ?, ?, ?)";
             db.beginTransaction();
 
             SQLiteStatement stmt = db.compileStatement(sql);
@@ -153,7 +208,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 stmt.bindString(3, blocks.get(i).getPucid());
                 stmt.bindString(4, blocks.get(i).getBlockid());
                 stmt.bindString(5, String.valueOf(blocks.get(i).getRowId()));
-                Log.d(TAG, "addBlockData: " + blocks.get(i).getBlockNo() + blocks.get(i).getPushedCoords() + blocks.get(i).getPucid() + blocks.get(i).getBlockid() + blocks.get(i).getRowId());
                 stmt.execute();
                 stmt.clearBindings();
             }
@@ -165,8 +219,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-
+    //Insert Scouting Methods
     public void addScoutingMethods(List<ScoutingMethods> scoutingMethods) {
+        //This is using Transactions to insert data.
         try {
             SQLiteDatabase db = this.getWritableDatabase();
             String sql = "INSERT INTO " + METHODS_TABLE_NAME + " (" + MCOL1 + "," + MCOL2 + "," + MCOL3 + "," + MCOL4 + ") VALUES (?, ?, ?, ?)";
@@ -189,10 +244,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
+    //Add logs
     public void addLog(List<ApiResp> resps) {
+        //This is using Transactions to insert data.
         try {
             SQLiteDatabase db = this.getWritableDatabase();
-            String sql = "INSERT INTO " + LOG_TABLE_NAME + " (" + LOG1 + "," + LOG2 + "," + LOG3 + "," + LOG4 + "," + LOG5 + "," + LOG6 + "," + LOG7 + ") VALUES (?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO " + LOG_TABLE_NAME + " (" +
+                    LOG1 + "," +
+                    LOG2 + "," +
+                    LOG3 + "," +
+                    LOG4 + "," +
+                    LOG5 + "," +
+                    LOG6 + "," +
+                    LOG7 + ") " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
             db.beginTransaction();
 
             SQLiteStatement stmt = db.compileStatement(sql);
@@ -215,7 +280,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-
+    //inserts PDDD's data
     public boolean addPDDDData(String description, int AskForGender, int MeasurmentType, String ScoutingMethods, String Phases, String PossiblePestLocation) {
         try {
             SQLiteDatabase db = this.getWritableDatabase();
@@ -235,8 +300,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
         return false;
     }
-
-    public final static String BROADCAST_ACTION = "BROADCAST_ACTION";
 
     public boolean addCapData(String CapturePoint,
                               String Gender,
@@ -294,21 +357,52 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return false;
     }
 
+    //Get Captured Data
     public Cursor getCapData() {
         SQLiteDatabase db = this.getWritableDatabase();
-        String query = "SELECT * FROM " + CAP_TABLE_NAME + " WHERE (" + CAP_COL16 + " IS NULL OR " + CAP_COL16 + " = \"\") AND (" + CAP_COL17 + " IS NULL OR " + CAP_COL17 + " = \"\") ";
+        String query = "SELECT * FROM " + CAP_TABLE_NAME + " WHERE (" +
+                CAP_COL16 + " IS NULL OR " +
+                CAP_COL16 + " = \"\") AND (" +
+                CAP_COL17 + " IS NULL OR " +
+                CAP_COL17 + " = \"\")";
         return db.rawQuery(query, null);
     }
 
+    //Get Captured Data images
     public Cursor getCapDataImages() {
         SQLiteDatabase db = this.getWritableDatabase();
-        String query = "SELECT * FROM " + CAP_TABLE_NAME + " WHERE (" + CAP_COL16 + " IS NULL OR " + CAP_COL16 + " = \"\") AND (" + CAP_COL17 + " IS NOT NULL OR " + CAP_COL17 + " != \"\") ";
+        String query = "SELECT * FROM " + CAP_TABLE_NAME + " WHERE (" +
+                CAP_COL16 + " IS NULL OR " +
+                CAP_COL16 + " = \"\") AND (" +
+                CAP_COL17 + " IS NOT NULL OR " +
+                CAP_COL17 + " != \"\")";
         return db.rawQuery(query, null);
     }
 
+    //Get Capture Data for Capture Point
     public Cursor getCapDataforCP(String Cappoint, String DataPoint) {
         SQLiteDatabase db = this.getWritableDatabase();
-        String query = "SELECT " + COL0 + "," + CAP_COL1 + "," + CAP_COL2 + "," + CAP_COL3 + "," + CAP_COL4 + "," + CAP_COL5 + "," + CAP_COL6 + "," + CAP_COL7 + "," + CAP_COL8 + "," + CAP_COL9 + "," + CAP_COL10 + "," + CAP_COL11 + "," + CAP_COL12 + "," + CAP_COL13 + "," + CAP_COL14 + "," + CAP_COL15 + "," + CAP_COL16 + " FROM " + CAP_TABLE_NAME + " WHERE " + CAP_COL1 + " = " + "\"" + Cappoint + "\" AND " + CAP_COL13 + " = " + "\"" + DataPoint + "\"";
+        String query = "SELECT " +
+                COL0 + "," +
+                CAP_COL1 + "," +
+                CAP_COL2 + "," +
+                CAP_COL3 + "," +
+                CAP_COL4 + "," +
+                CAP_COL5 + "," +
+                CAP_COL6 + "," +
+                CAP_COL7 + "," +
+                CAP_COL8 + "," +
+                CAP_COL9 + "," +
+                CAP_COL10 + "," +
+                CAP_COL11 + "," +
+                CAP_COL12 + "," +
+                CAP_COL13 + "," +
+                CAP_COL14 + "," +
+                CAP_COL15 + "," +
+                CAP_COL16 + " FROM " +
+                CAP_TABLE_NAME + " WHERE " +
+                CAP_COL1 + " = " + "\"" + Cappoint + "\" AND " +
+                CAP_COL13 + " = " + "\"" + DataPoint + "\"";
         return db.rawQuery(query, null);
     }
 
@@ -320,14 +414,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public Cursor getBlockID(String name) {
         SQLiteDatabase db = this.getWritableDatabase();
-        String query = "SELECT " + COL4 + " FROM " + BLOCK_TABLE_NAME + " WHERE " + COL1 + " = \"" + name + "\"";
+        String query = "SELECT " + COL4 + " FROM " +
+                BLOCK_TABLE_NAME + " WHERE " +
+                COL1 + " = \"" + name + "\"";
         return db.rawQuery(query, null);
     }
 
     public List<String> getMethods() {
         List<String> list = new ArrayList<>();
 
-        String selectQuery = "SELECT  * FROM " + METHODS_TABLE_NAME + " ORDER BY " + MCOL1 + " DESC";
+        String selectQuery = "SELECT  * FROM " +
+                METHODS_TABLE_NAME + " ORDER BY " +
+                MCOL1 + " DESC";
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -346,10 +444,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public List<String> getBlocks() {
         List<String> list = new ArrayList<>();
-        String selectQuery = "SELECT  * FROM " + BLOCK_TABLE_NAME + " ORDER BY " + COL3 + " ASC, " + COL1 + " DESC"; //, " +COL1 + " ASC"
+        String selectQuery = "SELECT  * FROM " +
+                BLOCK_TABLE_NAME + " ORDER BY " +
+                COL3 + " ASC, " +
+                COL1 + " DESC";
 
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);//selectQuery,selectedArguments
+        Cursor cursor = db.rawQuery(selectQuery, null);
 
         if (cursor.moveToFirst()) {
             do {
@@ -443,7 +544,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public long getCapdpCount(String CapturePoint, String DataPoint) {
         try {
             SQLiteDatabase db = this.getReadableDatabase();
-            String selectQuery = "SELECT " + CAP_COL14 + " FROM " + CAP_TABLE_NAME + " WHERE " + CAP_COL1 + " = " + "\"" + CapturePoint + "\" AND " + CAP_COL13 + " = " + "\"" + DataPoint + "\"";
+            String selectQuery = "SELECT " + CAP_COL14 + " FROM " +
+                    CAP_TABLE_NAME + " WHERE " +
+                    CAP_COL1 + " = " + "\"" + CapturePoint + "\" AND " +
+                    CAP_COL13 + " = " + "\"" + DataPoint + "\"";
 
             Cursor cursor = db.rawQuery(selectQuery, null);
             int count = cursor.getCount();
@@ -456,7 +560,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             return 1;
         }
     }
-
 
     public long getCapMAcount() {
         try {
@@ -476,7 +579,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Cursor getCapdp(String CapturePoint, String DataPoint) {
         try {
             SQLiteDatabase db = this.getReadableDatabase();
-            String selectQuery = "SELECT " + CAP_COL14 + " FROM " + CAP_TABLE_NAME + " WHERE " + CAP_COL1 + " = " + "\"" + CapturePoint + "\" AND " + CAP_COL13 + " = " + "\"" + DataPoint + "\"";
+            String selectQuery = "SELECT " + CAP_COL14 + " FROM " +
+                    CAP_TABLE_NAME + " WHERE " +
+                    CAP_COL1 + " = " + "\"" + CapturePoint + "\" AND " +
+                    CAP_COL13 + " = " + "\"" + DataPoint + "\"";
             return db.rawQuery(selectQuery, null);
 
         } catch (Exception err) {
@@ -488,7 +594,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public List<String> getPDDDDescriptions(String scoutingmethod) {
         List<String> list = new ArrayList<>();
 
-        String selectQuery = "SELECT  * FROM " + PDDD_TABLE_NAME + " WHERE " + PDDD_COL4 + " LIKE \"%" + scoutingmethod + "%\"" + " ORDER BY " + PDDD_COL1 + " ASC";
+        String selectQuery = "SELECT  * FROM " +
+                PDDD_TABLE_NAME + " WHERE " +
+                PDDD_COL4 + " LIKE \"%" + scoutingmethod + "%\"" + " ORDER BY " +
+                PDDD_COL1 + " ASC";
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -509,7 +618,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             List<String> list = new ArrayList<>();
             List<String> list2 = new ArrayList<>();
 
-            String selectQuery = "SELECT DISTINCT " + PDDD_COL5 + " FROM " + PDDD_TABLE_NAME + " WHERE " + PDDD_COL1 + " = " + "\"" + descr + "\"" + " ORDER BY " + PDDD_COL5 + " ASC";
+            String selectQuery = "SELECT DISTINCT " + PDDD_COL5 + " FROM " +
+                    PDDD_TABLE_NAME + " WHERE " +
+                    PDDD_COL1 + " = " + "\"" + descr + "\"" + " ORDER BY " +
+                    PDDD_COL5 + " ASC";
 
             SQLiteDatabase db = this.getReadableDatabase();
             Cursor cursor = db.rawQuery(selectQuery, null);
@@ -538,7 +650,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         List<String> list = new ArrayList<>();
         List<String> list2 = new ArrayList<>();
 
-        String selectQuery = "SELECT DISTINCT " + PDDD_COL6 + " FROM " + PDDD_TABLE_NAME + " WHERE " + PDDD_COL1 + " = " + "\"" + descr + "\"" + " ORDER BY " + PDDD_COL6 + " ASC";
+        String selectQuery = "SELECT DISTINCT " + PDDD_COL6 + " FROM " +
+                PDDD_TABLE_NAME + " WHERE " +
+                PDDD_COL1 + " = " + "\"" + descr + "\"" + " ORDER BY " +
+                PDDD_COL6 + " ASC";
 
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
@@ -560,7 +675,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     public Boolean getPDDDAskGender(String descr) {
-        String selectQuery = "SELECT DISTINCT " + PDDD_COL2 + " FROM " + PDDD_TABLE_NAME + " WHERE " + PDDD_COL1 + " = " + "\"" + descr + "\"" + " ORDER BY " + PDDD_COL2 + " ASC";
+        String selectQuery = "SELECT DISTINCT " + PDDD_COL2 + " FROM " +
+                PDDD_TABLE_NAME + " WHERE " +
+                PDDD_COL1 + " = " + "\"" + descr + "\"" + " ORDER BY " +
+                PDDD_COL2 + " ASC";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
@@ -573,7 +691,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public Boolean getPDDDMesurementType(String descr) {
-        String selectQuery = "SELECT DISTINCT " + PDDD_COL3 + " FROM " + PDDD_TABLE_NAME + " WHERE " + PDDD_COL1 + " = " + "\"" + descr + "\"" + " ORDER BY " + PDDD_COL3 + " ASC";
+        String selectQuery = "SELECT DISTINCT " + PDDD_COL3 + " FROM " +
+                PDDD_TABLE_NAME + " WHERE " +
+                PDDD_COL1 + " = " + "\"" + descr + "\"" + " ORDER BY " +
+                PDDD_COL3 + " ASC";
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
 
@@ -584,7 +705,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
         return val;
     }
-
 
     public void deletePDDDData() {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -785,6 +905,4 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Cursor data = db.rawQuery(query, null);
         return data;
     }
-
-
 }
