@@ -1,6 +1,5 @@
 package com.example.scoutingplatform;
 
-//import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,15 +18,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.TextView;
-
-import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-
 import java.util.ArrayList;
 
 public class DataPointActivity extends AppCompatActivity {
 
     DatabaseHelper mDatabaseHelper;
-//    ExtendedFloatingActionButton fab;
     Button btnAdd;
     Button btnBackDPA;
     RecyclerAdapterdp mAdapter;
@@ -38,7 +33,6 @@ public class DataPointActivity extends AppCompatActivity {
     Button btnDeleteEntries;
     Integer req;
     public final static String BROADCAST_ACTION = "BROADCAST_ACTION";
-    private int requiredAmount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,31 +41,16 @@ public class DataPointActivity extends AppCompatActivity {
         setContentView(R.layout.test2);
         Context ct = this;
 
-
-
-
-
         RecyclerView recyclerView = findViewById(R.id.recyclerDataPoint);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         mAdapter = new RecyclerAdapterdp(this, getAllItems());
         recyclerView.setAdapter(mAdapter);
-//        mAdapter.
         txtCount = findViewById(R.id.txtCount);
 
-//        requiredAmount = getIntent().getIntExtra("RequiredDataPoints",0);
-
-//        if(requiredAmount > 0) {
-//            Log.d("req", "onCreate: 1 " +req);
-//            SharedPreferences.Editor editor = settings.edit();
-//            editor.putInt("RequiredDataPoints", requiredAmount);
-//            editor.commit();
-//
-//        }
         SharedPreferences settings = getSharedPreferences("Scouting", 0);
         req = settings.getInt("RequiredDataPoints", 0);
         Log.d("req", "onCreate: 2 " +req);
 
-//        syncDate = settings.getLong("syncDate", 0);
         txtCount.setText(mAdapter.getItemCount() + "/" + req);
 
         selectall = findViewById(R.id.cbSelectAll);
@@ -84,7 +63,6 @@ public class DataPointActivity extends AppCompatActivity {
                 else {
                     mAdapter.unselectall();
                 }
-
             }
         });
 
@@ -97,13 +75,11 @@ public class DataPointActivity extends AppCompatActivity {
             }
         };
 
-
         btnAdd = findViewById(R.id.btnAdd);
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intentls = new Intent(getApplicationContext(), CaptureActivity.class);
-                intentls.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 Log.d("CPcheck", "dpact: " + getIntent().getStringExtra("CapturePoint"));
                 intentls.putExtra("CapturePoint", getIntent().getStringExtra("CapturePoint"));
                 intentls.putExtra("Barcode", getIntent().getStringExtra("Barcode"));
@@ -120,7 +96,6 @@ public class DataPointActivity extends AppCompatActivity {
             }
         });
 
-
         btnDeleteEntries = findViewById(R.id.btnDeleteEntries);
         btnDeleteEntries.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -134,10 +109,6 @@ public class DataPointActivity extends AppCompatActivity {
                 builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-//                        for (RecyclerAdapterdp ra :
-//                             ) {
-//
-//                        }
                         mAdapter.DeleteEntry();
                         mAdapter.swapCursor(getAllItems());
                         txtCount.setText("Count: " +mAdapter.getItemCount() );
@@ -152,16 +123,8 @@ public class DataPointActivity extends AppCompatActivity {
                 });
                 AlertDialog dialog = builder.create();
                 dialog.show();
-
-
-
-
-                //Toast.makeText(getApplicationContext(),String.valueOf(mAdapter.pos()) ,Toast.LENGTH_SHORT).show();
             }
         });
-
-
-
     }
 
     @Override
@@ -183,20 +146,14 @@ public class DataPointActivity extends AppCompatActivity {
         registerReceiver(br, intFilt);
         mAdapter.swapCursor(getAllItems());
         txtCount.setText("Count: " + mAdapter.getItemCount());
-//        txtCount.setText(mAdapter.getItemCount() + "/" + req);
-
     }
 
     private Cursor getAllItems() {
         try {
             return mDatabaseHelper.getCapDataforCP(getIntent().getStringExtra("CapturePoint"), getIntent().getStringExtra("DataPoint")); //Enter sql query for specific datapoint here
-//            getIntent().getStringExtra("CapturePoint")
         } catch (Exception ep) {
             Log.d("exeptions", ep.toString());
             return null;
         }
     }
-
-
-
 }

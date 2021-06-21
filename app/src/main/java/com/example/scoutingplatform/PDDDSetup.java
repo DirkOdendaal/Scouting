@@ -12,6 +12,9 @@ class PDDDSetup implements Serializable{
     @SerializedName("Ask for Gender")
     private Boolean AskforGender;
 
+    @SerializedName("Ask for Phases")
+    private Boolean AskForPhases;
+
     @SerializedName("Measurement Type")
     private Boolean MeasurementType;
 
@@ -21,10 +24,8 @@ class PDDDSetup implements Serializable{
     @SerializedName("Phases")
     private String Phases;
 
-
     @SerializedName("Possible pest locations")
     private String Possiblepestlocations;
-
 
     public String getPossiblepestlocations() {
         return Possiblepestlocations;
@@ -33,8 +34,6 @@ class PDDDSetup implements Serializable{
     public void setPossiblepestlocations(String possiblepestlocations) {
         Possiblepestlocations = possiblepestlocations;
     }
-
-
 
     public String getDescription() {
         return Description;
@@ -75,8 +74,4 @@ class PDDDSetup implements Serializable{
     public void setPhases(String phases) {
         Phases = phases;
     }
-
-
-
-
 }

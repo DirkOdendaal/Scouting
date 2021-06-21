@@ -52,13 +52,10 @@ public class PostJobIntentService extends JobIntentService {
         super.onCreate();
         Log.d("service1", "create");
         mDatabaseHelper = new DatabaseHelper(getApplicationContext());
-        // mDatabaseHelper.delDebug();
     }
-
 
     @Override
     protected void onHandleWork(@NonNull Intent intent) {
-        //toast("onHandle");
         Log.d("service1", "start onhandle");
         try {
             if (CheckForConectivity()) {
@@ -71,23 +68,157 @@ public class PostJobIntentService extends JobIntentService {
 
     ArrayList<RecordClass> PostItems = new ArrayList<RecordClass>();
     ArrayList<RecordClass> PostItemsBULK = new ArrayList<RecordClass>();
-    int actives = 0;
-    String bulkWhereto;
-    String LastWhereto = "";
     int retries = 0;
     int maxretries = 0;
-    int newdescount;
-    boolean tryagain = true;
 
     public void POSTDATA() throws IOException {
 
-        PostItems = new ArrayList<RecordClass>();
-        if (CheckForConectivity()) {
-            Cursor data = mDatabaseHelper.getCapData();
+        try {
+            PostItems = new ArrayList<RecordClass>();
+            if (CheckForConectivity()) {
+                Cursor data = mDatabaseHelper.getCapData();
+                data.moveToFirst();
+                for (int q = 0; q < data.getCount(); ++q) {
+                    final RecordClass postItem = new RecordClass();
+                    postItem.setID(data.getInt(0));
+                    String CapturePoint = "";
+                    String Gender = "";
+                    String ScoutingMethod = "";
+                    String Phase = "";
+                    String PestLocation = "";
+                    String Location = "";
+                    String Timestamp = "";
+                    String ProductionUnit = "";
+                    String Block = "";
+                    String SubBlock = "";
+                    String Quantity = "";
+                    String Severity = "";
+                    String DataPoint = "";
+                    String PestDescription = "";
+                    String GUID = "";
+                    String BlockID = "";
+                    String barcode = "";
+
+                    if (!TextUtils.isEmpty(data.getString(1))) {
+                        CapturePoint = "\"Capture Point\":" + "\"" + data.getString(1) + "\",";
+                    }
+
+                    if (!TextUtils.isEmpty(data.getString(2))) {
+                        Gender = "\"Gender\":" + "\"" + data.getString(2) + "\",";
+                    }
+
+                    if (!TextUtils.isEmpty(data.getString(3))) {
+                        ScoutingMethod = "\"Scouting Method\":" + "\"" + data.getString(3) + "\",";
+                    }
+
+                    if (!TextUtils.isEmpty(data.getString(4))) {
+                        Phase = "\"Phase\":" + "\"" + data.getString(4) + "\",";
+                    }
+
+                    if (!TextUtils.isEmpty(data.getString(5))) {
+                        PestLocation = "\"Pest Location\":" + "\"" + data.getString(5) + "\",";
+                    }
+
+                    if (!TextUtils.isEmpty(data.getString(6))) {
+                        Location = "\"Location\":" + "\"" + data.getString(6) + "\",";
+                    }
+
+                    if (!TextUtils.isEmpty(data.getString(7))) {
+                        Timestamp = "\"Timestamp\":" + "\"" + data.getString(7).replace(' ', 'T') + "\",";
+                    }
+
+                    if (!TextUtils.isEmpty(data.getString(8))) {
+                        ProductionUnit = "\"Production Unit\":" + "\"" + data.getString(8) + "\",";
+                    }
+
+                    if (!TextUtils.isEmpty(data.getString(9))) {
+                        Block = "\"Block\":" + "\"" + data.getString(9) + "\",";
+                    }
+
+                    if (!TextUtils.isEmpty(data.getString(10))) {
+                        SubBlock = "\"Sub-Block\":" + "\"" + data.getString(10) + "\",";
+                    }
+
+                    if (data.getFloat(11) != 0f) {
+                        Quantity = "\"Quantity\":" + "\"" + String.valueOf(data.getFloat(11)) + "\",";
+                    }
+
+                    if (!TextUtils.isEmpty(data.getString(12))) {
+                        Severity = "\"Severity\":" + "\"" + data.getString(12) + "\",";
+                    }
+
+                    if (!TextUtils.isEmpty(data.getString(13))) {
+                        DataPoint = "\"Data Point\":" + "\"" + data.getString(13) + "\",";
+                    }
+
+                    if (!TextUtils.isEmpty(data.getString(14))) {
+                        PestDescription = "\"Pest Description\":" + "\"" + data.getString(14) + "\",";
+                    }
+
+                    if (!TextUtils.isEmpty(data.getString(15))) {
+                        GUID = "\"Id\":" + "\"" + data.getString(15) + "\",";
+                    }
+
+                    if (!TextUtils.isEmpty(data.getString(18))) {
+                        BlockID = "\"BlockID\":" + "\"" + data.getString(18) + "\",";
+                    }
+
+                    if (!TextUtils.isEmpty(data.getString(19))) {
+                        barcode = "\"Scanned Field\":" + "\"" + data.getString(19) + "\",";
+                    }
+
+                    postItem.setJSon("{" +
+                            CapturePoint +
+                            Gender +
+                            ScoutingMethod +
+                            Phase +
+                            PestLocation +
+                            Location +
+                            Timestamp +
+                            ProductionUnit +
+                            Block +
+                            SubBlock +
+                            Quantity +
+                            Severity +
+                            DataPoint +
+                            PestDescription +
+                            GUID +
+                            BlockID+
+                            barcode + "}");
+                    Log.d(TAG, "JSON: " + postItem.getJSon());
+                    PostItems.add(postItem);
+
+                    data.moveToNext();
+                }
+                data.close();
+
+                if (retries == 0) {
+                    maxretries = PostItems.size() / 100;
+                }
+                if (PostItems.size() > 0) {
+                    PostItemsBULK = new ArrayList<RecordClass>();
+
+                    for (int b = 0; b < PostItems.size(); ++b) {
+                        if (PostItemsBULK.size() < 100) {
+                            PostItemsBULK.add(PostItems.get(b));
+                        }
+                    }
+                    retries++;
+                    doCallBulk(PostItemsBULK);
+                } else {
+                    POSTPHOTOS();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void POSTPHOTOS() throws IOException {
+        try {
+            Cursor data = mDatabaseHelper.getCapDataImages();
             data.moveToFirst();
             for (int q = 0; q < data.getCount(); ++q) {
-                final RecordClass postItem = new RecordClass();
-                postItem.setID(data.getInt(0));
                 String CapturePoint = "";
                 String Gender = "";
                 String ScoutingMethod = "";
@@ -103,207 +234,106 @@ public class PostJobIntentService extends JobIntentService {
                 String DataPoint = "";
                 String PestDescription = "";
                 String GUID = "";
+                String ImagePath = "";
                 String BlockID = "";
                 String barcode = "";
-
                 if (!TextUtils.isEmpty(data.getString(1))) {
-                    CapturePoint = "\"Capture Point\":" + "\"" + data.getString(1) + "\",";
+                    CapturePoint = data.getString(1);
                 }
 
                 if (!TextUtils.isEmpty(data.getString(2))) {
-                    Gender = "\"Gender\":" + "\"" + data.getString(2) + "\",";
+                    Gender = data.getString(2);
                 }
 
                 if (!TextUtils.isEmpty(data.getString(3))) {
-                    ScoutingMethod = "\"Scouting Method\":" + "\"" + data.getString(3) + "\",";
+                    ScoutingMethod = data.getString(3);
                 }
 
                 if (!TextUtils.isEmpty(data.getString(4))) {
-                    Phase = "\"Phase\":" + "\"" + data.getString(4) + "\",";
+                    Phase = data.getString(4);
                 }
 
                 if (!TextUtils.isEmpty(data.getString(5))) {
-                    PestLocation = "\"Pest Location\":" + "\"" + data.getString(5) + "\",";
+                    PestLocation = data.getString(5);
                 }
 
                 if (!TextUtils.isEmpty(data.getString(6))) {
-                    Location = "\"Location\":" + "\"" + data.getString(6) + "\",";
+                    Location = data.getString(6);
                 }
 
                 if (!TextUtils.isEmpty(data.getString(7))) {
-                    Timestamp = "\"Timestamp\":" + "\"" + data.getString(7).replace(' ', 'T') + "\",";
+                    Timestamp = data.getString(7).replace(' ', 'T');
                 }
 
                 if (!TextUtils.isEmpty(data.getString(8))) {
-                    ProductionUnit = "\"Production Unit\":" + "\"" + data.getString(8) + "\",";
+                    ProductionUnit = data.getString(8);
                 }
 
                 if (!TextUtils.isEmpty(data.getString(9))) {
-                    Block = "\"Block\":" + "\"" + data.getString(9) + "\",";
+                    Block = data.getString(9);
                 }
 
                 if (!TextUtils.isEmpty(data.getString(10))) {
-                    SubBlock = "\"Sub-Block\":" + "\"" + data.getString(10) + "\",";
+                    SubBlock = data.getString(10);
                 }
 
                 if (data.getFloat(11) != 0f) {
-                    Quantity = "\"Quantity\":" + "\"" + String.valueOf(data.getFloat(11)) + "\",";
+                    Quantity = String.valueOf(data.getFloat(11));
                 }
 
                 if (!TextUtils.isEmpty(data.getString(12))) {
-                    Severity = "\"Severity\":" + "\"" + data.getString(12) + "\",";
+                    Severity = data.getString(12);
                 }
 
                 if (!TextUtils.isEmpty(data.getString(13))) {
-                    DataPoint = "\"Data Point\":" + "\"" + data.getString(13) + "\",";
+                    DataPoint = data.getString(13);
                 }
 
                 if (!TextUtils.isEmpty(data.getString(14))) {
-                    PestDescription = "\"Pest Description\":" + "\"" + data.getString(14) + "\",";
+                    PestDescription = data.getString(14);
                 }
 
                 if (!TextUtils.isEmpty(data.getString(15))) {
-                    GUID = "\"Id\":" + "\"" + data.getString(15) + "\",";
+                    GUID = data.getString(15);
                 }
-
+                if (!TextUtils.isEmpty(data.getString(17))) {
+                    ImagePath = data.getString(17);
+                }
                 if (!TextUtils.isEmpty(data.getString(18))) {
-                    BlockID = "\"BlockID\":" + "\"" + data.getString(18) + "\",";
+                    BlockID = data.getString(18);
                 }
-
                 if (!TextUtils.isEmpty(data.getString(19))) {
-                    barcode = "\"Scanned Field\":" + "\"" + data.getString(19) + "\",";
+                    barcode = data.getString(19);
                 }
-
-
-                postItem.setJSon("{" + CapturePoint + Gender + ScoutingMethod + Phase + PestLocation + Location + Timestamp + ProductionUnit + Block + SubBlock + Quantity + Severity + DataPoint + PestDescription + GUID +BlockID+ barcode + "}");
-                Log.d(TAG, "JSON: " + postItem.getJSon());
-                PostItems.add(postItem);
-
+                photoUpload(
+                        CapturePoint,
+                        Gender,
+                        ScoutingMethod,
+                        Phase,
+                        PestLocation,
+                        Location,
+                        Timestamp,
+                        ProductionUnit,
+                        Block,
+                        SubBlock,
+                        Quantity,
+                        Severity,
+                        DataPoint,
+                        PestDescription,
+                        GUID,
+                        ImagePath,
+                        BlockID,
+                        barcode
+                );
                 data.moveToNext();
             }
             data.close();
 
-            if (retries == 0) {
-                maxretries = PostItems.size() / 100;
-            }
-            if (PostItems.size() > 0) {
-                PostItemsBULK = new ArrayList<RecordClass>();
-
-                for (int b = 0; b < PostItems.size(); ++b) {
-                    if (PostItemsBULK.size() < 100) {
-                        PostItemsBULK.add(PostItems.get(b));
-                    }
-                }
-                retries++;
-                doCallBulk(PostItemsBULK);
-            } else {
-                POSTPHOTOS();
-            }
-
+            toast("Records synced.");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
     }
-
-    private void POSTPHOTOS() throws IOException {
-        Cursor data = mDatabaseHelper.getCapDataImages();
-        data.moveToFirst();
-        for (int q = 0; q < data.getCount(); ++q) {
-            String CapturePoint = "";
-            String Gender = "";
-            String ScoutingMethod = "";
-            String Phase = "";
-            String PestLocation = "";
-            String Location = "";
-            String Timestamp = "";
-            String ProductionUnit = "";
-            String Block = "";
-            String SubBlock = "";
-            String Quantity = "";
-            String Severity = "";
-            String DataPoint = "";
-            String PestDescription = "";
-            String GUID = "";
-            String ImagePath = "";
-            String BlockID = "";
-            String barcode = "";
-            if (!TextUtils.isEmpty(data.getString(1))) {
-                CapturePoint = data.getString(1);
-            }
-
-            if (!TextUtils.isEmpty(data.getString(2))) {
-                Gender = data.getString(2);
-            }
-
-            if (!TextUtils.isEmpty(data.getString(3))) {
-                ScoutingMethod = data.getString(3);
-            }
-
-            if (!TextUtils.isEmpty(data.getString(4))) {
-                Phase = data.getString(4);
-            }
-
-            if (!TextUtils.isEmpty(data.getString(5))) {
-                PestLocation = data.getString(5);
-            }
-
-            if (!TextUtils.isEmpty(data.getString(6))) {
-                Location = data.getString(6);
-            }
-
-            if (!TextUtils.isEmpty(data.getString(7))) {
-                Timestamp = data.getString(7).replace(' ', 'T');
-            }
-
-            if (!TextUtils.isEmpty(data.getString(8))) {
-                ProductionUnit = data.getString(8);
-            }
-
-            if (!TextUtils.isEmpty(data.getString(9))) {
-                Block = data.getString(9);
-            }
-
-            if (!TextUtils.isEmpty(data.getString(10))) {
-                SubBlock = data.getString(10);
-            }
-
-            if (data.getFloat(11) != 0f) {
-                Quantity = String.valueOf(data.getFloat(11));
-            }
-
-            if (!TextUtils.isEmpty(data.getString(12))) {
-                Severity = data.getString(12);
-            }
-
-            if (!TextUtils.isEmpty(data.getString(13))) {
-                DataPoint = data.getString(13);
-            }
-
-            if (!TextUtils.isEmpty(data.getString(14))) {
-                PestDescription = data.getString(14);
-            }
-
-            if (!TextUtils.isEmpty(data.getString(15))) {
-                GUID = data.getString(15);
-            }
-            if (!TextUtils.isEmpty(data.getString(17))) {
-                ImagePath = data.getString(17);
-            }
-            if (!TextUtils.isEmpty(data.getString(18))) {
-                BlockID = data.getString(18);
-            }
-            if (!TextUtils.isEmpty(data.getString(19))) {
-                barcode = data.getString(19);
-            }
-            photoUpload( CapturePoint,  Gender, ScoutingMethod, Phase, PestLocation, Location,  Timestamp,  ProductionUnit,  Block,  SubBlock,  Quantity,  Severity,  DataPoint,  PestDescription,  GUID,  ImagePath, BlockID, barcode);
-
-            data.moveToNext();
-        }
-        data.close();
-
-        toast("Records synced.");
-
-    }
-
 
     private void doCallBulk(ArrayList<RecordClass> postItemsblk) throws IOException {
 
@@ -311,15 +341,17 @@ public class PostJobIntentService extends JobIntentService {
             StringBuilder blkjson = new StringBuilder();
             Log.d("vars", "POSTitembulksize: " + postItemsblk.size());
             blkjson.append("[");
+
             for (int b = 0; b < postItemsblk.size(); ++b) {
                 blkjson.append(postItemsblk.get(b).getJSon()).append(",");
             }
+
             blkjson.append("]");
+
             Log.d("RESPONSES", "BULKJSON: " + blkjson.toString());
+
             RequestBody body = RequestBody.create(
                     MediaType.parse("application/json"), blkjson.toString());
-//            SharedPreferences settings = getSharedPreferences("UserInfo", 0);
-
 
             OkHttpClient client = new OkHttpClient.Builder()
                     .connectTimeout(60, TimeUnit.SECONDS)
@@ -327,16 +359,18 @@ public class PostJobIntentService extends JobIntentService {
                     .writeTimeout(60, TimeUnit.SECONDS)
                     .retryOnConnectionFailure(false)
                     .build();
+
             SharedPreferences settings = getSharedPreferences("UserInfo", 0);
+
             okhttp3.Request request = new okhttp3.Request.Builder()
-//                    .url("https://appnostic.dbflex.net/secure/api/v2/" + settings.getString("DBID", "") + "/" + bulkWhereto + "/create.json")
                     .url("https://appnostic.dbflex.net/secure/api/v2/" + settings.getString("DBID", "") + "/Scouting%20Data/upsert.json")
                     .header("Authorization", Credentials.basic(settings.getString("email", ""), settings.getString("password", "")))
                     .post(body)
                     .addHeader("Content-Type", " application/json")
-//                    .addHeader("Authorization", Credentials.basic(settings.getString("email", ""), settings.getString("password", "")))
                     .build();
+
             Response response = client.newCall(request).execute();
+
             if (response.isSuccessful()) {
                 try {
                     ArrayList<ApiResp> responses = new ArrayList<>();
@@ -391,7 +425,6 @@ public class PostJobIntentService extends JobIntentService {
                         Log.d(TAG, "doCallBulk: status:" + status + " id:" + id + " key:" + key + " error:" + error + " code:" + code + " source:" + source + " " + message);
                         ApiResp apiresp = new ApiResp(status, id, key, error, code, source, message);
                         responses.add(apiresp);
-
                     }
                     mDatabaseHelper.addLog(responses);
                     for (int q = 0; q < responses.size(); q++) {
@@ -399,7 +432,6 @@ public class PostJobIntentService extends JobIntentService {
                         if ((responses.get(q).getStatus() < 400 && responses.get(q).getStatus() >= 200) && (!TextUtils.isEmpty(responses.get(q).getKey()))) {
                             Log.d(TAG, "doCallBulk: CHECK" + responses.get(q).getKey());
                             mDatabaseHelper.flagCaptured(responses.get(q).getKey());
-
                         }
                     }
                     Intent intent = new Intent(BROADCAST_ACTION);
@@ -409,8 +441,6 @@ public class PostJobIntentService extends JobIntentService {
                 } catch (JSONException | IOException e) {
                     Log.d(TAG, "doCallBulk: " + e.toString());
                 }
-
-
             }else
             {
                 String resp1 = response.body().string();
@@ -429,7 +459,27 @@ public class PostJobIntentService extends JobIntentService {
         }
     }
 
-    public void photoUpload(String CapturePoint, String Gender, String ScoutingMethod, String Phase, String PestLocation, String Location, String Timestamp, String ProductionUnit, String Block, String SubBlock, String Quantity, String Severity, String DataPoint, String PestDescription, String GUID, String ImagePath, String BlockID, String barcode) throws IOException { //
+    public void photoUpload(
+            String CapturePoint,
+            String Gender,
+            String ScoutingMethod,
+            String Phase,
+            String PestLocation,
+            String Location,
+            String Timestamp,
+            String ProductionUnit,
+            String Block,
+            String SubBlock,
+            String Quantity,
+            String Severity,
+            String DataPoint,
+            String PestDescription,
+            String GUID,
+            String ImagePath,
+            String BlockID,
+            String barcode
+    ) throws IOException {
+
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
         MediaType mediaType = MediaType.parse("text/plain");
@@ -455,14 +505,18 @@ public class PostJobIntentService extends JobIntentService {
                 .addFormDataPart("BlockID", BlockID)
                 .addFormDataPart("Scanned Field", barcode)
                 .build();
+
         SharedPreferences settings = getSharedPreferences("UserInfo", 0);
+
         Request request = new Request.Builder()
                 .url("https://appnostic.dbflex.net/secure/api/v2/" + settings.getString("DBID", "") + "/Scouting%20Data/upsert.json")
                 .header("Authorization", Credentials.basic(settings.getString("email", ""), settings.getString("password", "")))
                 .method("POST", body)
                 .build();
+
         Log.d("okRESPONSE", "postmanUpload: build comp");
         Response response = client.newCall(request).execute();
+
         if (response.isSuccessful()) {
             try {
                 ArrayList<ApiResp> responses = new ArrayList<>();
@@ -517,7 +571,6 @@ public class PostJobIntentService extends JobIntentService {
                     Log.d(TAG, "photoUpload: status:" + status + " id:" + id + " key:" + key + " error:" + error + " code:" + code + " source:" + source + " " + message);
                     ApiResp apiresp = new ApiResp(status, id, key, error, code, source, message);
                     responses.add(apiresp);
-
                 }
                 mDatabaseHelper.addLog(responses);
                 for (int q = 0; q < responses.size(); q++) {
@@ -525,20 +578,16 @@ public class PostJobIntentService extends JobIntentService {
                     if ((responses.get(q).getStatus() < 400 && responses.get(q).getStatus() >= 200) && (!TextUtils.isEmpty(responses.get(q).getKey()))) {
                         Log.d(TAG, "photoUpload: CHECK" + responses.get(q).getKey());
                         mDatabaseHelper.flagCaptured(responses.get(q).getKey());
-
                     }
                 }
                 Intent intent = new Intent(BROADCAST_ACTION);
                 sendBroadcast(intent);
-//                toast("Records synced.");
 
             } catch (JSONException | IOException e) {
                 Log.d(TAG, "photoUpload: " + e.toString());
             }
-
         }
     }
-
 
     private Boolean CheckForConectivity() {
         Log.d("service1", "checkcon");

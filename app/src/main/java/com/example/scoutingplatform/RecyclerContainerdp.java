@@ -7,7 +7,6 @@ public class RecyclerContainerdp {
 
 
     public static final class RecyclerEntry implements BaseColumns {
-        public static final String TABLE_NAME = "cap_table";
         public static final String COLDESCRIPTION =  "PestDescription";
         public static final String COLGENDER =  "Gender";
         public static final String COLPOS =  "PestLocation";

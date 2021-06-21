@@ -35,7 +35,6 @@ class ScoutingMethods {
         AmountofCapturePoints = amountofCapturePoints;
     }
 
-
     public String getDescription() {
         return Description;
     }
@@ -43,7 +42,6 @@ class ScoutingMethods {
     public void setDescription(String description) {
         Description = description;
     }
-
 
     public long isForceScanField() {
         if (ForceScanField){

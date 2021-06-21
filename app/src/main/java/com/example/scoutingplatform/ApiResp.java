@@ -35,15 +35,8 @@ class ApiResp {
     @SerializedName("message")
     private String message;
 
-    //{"error":400,"code":2002,"source":"content","message":"Unexpected end when deserializing object. Path 'Id', line 1, position 291."}
-
-
     public String getError() {
         return error;
-    }
-
-    public void setError(String error) {
-        this.error = error;
     }
 
     public Integer getCode() {
@@ -70,13 +63,8 @@ class ApiResp {
         this.message = message;
     }
 
-
     public Integer getStatus() {
         return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
     }
 
     public Integer getId() {
@@ -90,10 +78,5 @@ class ApiResp {
     public String getKey() {
         return key;
     }
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-
 
 }

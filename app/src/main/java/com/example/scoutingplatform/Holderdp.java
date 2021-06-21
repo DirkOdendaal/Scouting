@@ -22,6 +22,5 @@ public class Holderdp extends RecyclerView.ViewHolder {
         this.btnViewRecords = itemView.findViewById(R.id.btnViewRecords);
         this.btnNone = itemView.findViewById(R.id.btnNone);
         this.RelativeLayoutDP = itemView.findViewById(R.id.RelativeLayoutDP);
-
     }
 }

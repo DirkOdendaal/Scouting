@@ -1,5 +1,4 @@
 package com.example.scoutingplatform;
-
 import android.content.ClipData;
 import android.content.Context;
 import android.database.Cursor;
@@ -10,13 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class RecyclerAdapterdp extends RecyclerView.Adapter<RecyclerAdapterdp.RecyclerViewHolder> {
@@ -30,7 +25,6 @@ public class RecyclerAdapterdp extends RecyclerView.Adapter<RecyclerAdapterdp.Re
     int id;
     public ArrayList<RecyclerViewHolder> holders = new ArrayList<RecyclerViewHolder>();
     public ArrayList<Integer> holderids = new ArrayList<>();
-
 
     interface OnItemCheckListener {
         void onItemCheck(ClipData.Item item);
@@ -68,19 +62,7 @@ public class RecyclerAdapterdp extends RecyclerView.Adapter<RecyclerAdapterdp.Re
             txtTime = itemView.findViewById(R.id.txtTime);
             checkBox = itemView.findViewById(R.id.cbInteract);
             mycheckBox = checkBox;
-//            Log.d("TEST", "RecyclerViewHolder: "+ RecyclerAdapterdp.RecyclerViewHolder.this);
-//            holders.add(RecyclerAdapterdp.RecyclerViewHolder.this);
-//            checkBox.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    Toast.makeText(mContext,String.valueOf(checkBox.isChecked()) + " " + String.valueOf(itemView),Toast.LENGTH_SHORT).show();
-//                }
-//            });
-
-
         }
-
-
     }
 
     @NonNull
@@ -91,7 +73,6 @@ public class RecyclerAdapterdp extends RecyclerView.Adapter<RecyclerAdapterdp.Re
         return new RecyclerViewHolder(view);
     }
 
-    //int id;
     boolean ch = false;
 
     @Override
@@ -108,8 +89,6 @@ public class RecyclerAdapterdp extends RecyclerView.Adapter<RecyclerAdapterdp.Re
             String Quantity = mCursor.getString(mCursor.getColumnIndex(RecyclerContainerdp.RecyclerEntry.COLQUAN));
             String Timestamp = mCursor.getString(mCursor.getColumnIndex(RecyclerContainerdp.RecyclerEntry.COLTIME));
             int ID = mCursor.getInt(mCursor.getColumnIndex(RecyclerContainerdp.RecyclerEntry.COLID));
-            // id = mCursor.getInt(0);
-//            Log.d("DELETE", "onBindViewHolder: ID: " + id);
             int add = 0;
             holder.holderid = mCursor.getInt(0);
             ch = holder.checkBox.isChecked();
@@ -127,70 +106,47 @@ public class RecyclerAdapterdp extends RecyclerView.Adapter<RecyclerAdapterdp.Re
                 Log.d("DELETE", "onBindViewHolder: cannot insert duplicateeeeeeeeeeeeeeeeeeeeeee");
             }
 
-
-//            for(int i = 0; i < holders.size(); i++) {
-//                if (holders) {
-//                    Log.d("HOLDER", "onBindViewHolder: " + holder.holderid);
-//                    holders.add(holder);
-//                }
-//            }
-            //Log.d("IDcol", "onBindViewHolder: "+ mCursor.getInt(0));
             Log.d("Position", "onBindViewHolder: pos " + position);
             Log.d("Position", "onBindViewHolder: id " + ID);
             holder.holderid = ID;
 
             if (!TextUtils.isEmpty(DataPoint)) {
                 holder.textDataPoint.setText(DataPoint);
-
-                // Log.d("Adapter", "onBindViewHolder: Gender is empty");
             } else {
                 holder.textDataPoint.setText("");
             }
 
             if (!TextUtils.isEmpty(Gender)) {
                 holder.txtGender.setText(Gender);
-
-                //Log.d("Adapter", "onBindViewHolder: Gender is empty");
             } else {
                 holder.txtGender.setText("");
             }
 
             if (!TextUtils.isEmpty(Postition)) {
                 holder.txtPos.setText(Postition);
-
-                //Log.d("Adapter", "onBindViewHolder: Gender is empty");
             } else {
                 holder.txtPos.setText("");
             }
 
             if (!TextUtils.isEmpty(Severity)) {
                 holder.txtSev.setText(Severity);
-
-                // Log.d("Adapter", "onBindViewHolder: Gender is empty");
             } else {
                 holder.txtSev.setText("");
             }
 
             if (!TextUtils.isEmpty(Quantity)) {
                 holder.txtQuantity.setText(Quantity);
-
-                // Log.d("Adapter", "onBindViewHolder: Gender is empty");
             } else {
                 holder.txtQuantity.setText("");
             }
 
             if (!TextUtils.isEmpty(Timestamp)) {
                 holder.txtTime.setText(Timestamp);
-
-                //Log.d("Adapter", "onBindViewHolder: Gender is empty");
             } else {
                 holder.txtTime.setText("");
             }
 
-            holder.checkBox.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                }
+            holder.checkBox.setOnClickListener(v -> {
             });
 
             if (!isSelectedAll) {
@@ -205,61 +161,47 @@ public class RecyclerAdapterdp extends RecyclerView.Adapter<RecyclerAdapterdp.Re
     }
 
     public void DeleteEntry() {
-
-
-//       id = new ArrayList<Integer>();
-//       for (RecyclerViewHolder h: holders
-//            ) {
-//           Log.d("DELETE", "DeleteEntry: "+ h.checkBox.isChecked() + " holder id:" + h.holderid);
-//           if(h.checkBox.isChecked()) {
-//               Log.d("DELETE", "DeleteEntry: "+ h.holderid);
-//               id.add(h.holderid);
-//       if(ch) {
-//        notifyDataSetChanged();
-
-
-
-
-        holderids = new ArrayList<>();
-        ArrayList<RecyclerViewHolder> holderstoremove = new ArrayList<>();
-        for (RecyclerViewHolder r : holders
-        ) {
-            if (r.checkBox.isChecked()) {
-                holderids.add(r.holderid);
-                holderstoremove.add(r);
+        try {
+            holderids = new ArrayList<>();
+            ArrayList<RecyclerViewHolder> holderstoremove = new ArrayList<>();
+            for (RecyclerViewHolder r : holders
+            ) {
+                if (r.checkBox.isChecked()) {
+                    holderids.add(r.holderid);
+                    holderstoremove.add(r);
+                }
             }
+            if(holderstoremove.size() > 0) {
+                holders.removeAll(holderstoremove);
+                Log.d("DELETE", "DeleteEntry: " + holderids);
+                mDatabaseHelper.delentryData(holderids);
+                notifyDataSetChanged();
+            }
+            else
+            {
+                Log.d("already", "DeleteEntry: no more");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        if(holderstoremove.size() > 0) {
-            holders.removeAll(holderstoremove);
-            Log.d("DELETE", "DeleteEntry: " + holderids);
-            mDatabaseHelper.delentryData(holderids);
-            notifyDataSetChanged();
-           // DeleteEntry();
-        }
-        else
-        {
-            Log.d("already", "DeleteEntry: no more");
-        }
-
-
-
-
-
-
-//       }
-//           }
-//       }
-        // holders = new ArrayList<RecyclerViewHolder>();
     }
 
     public void selectAll() {
-        isSelectedAll = true;
-        notifyDataSetChanged();
+        try {
+            isSelectedAll = true;
+            notifyDataSetChanged();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void unselectall() {
-        isSelectedAll = false;
-        notifyDataSetChanged();
+        try {
+            isSelectedAll = false;
+            notifyDataSetChanged();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -271,7 +213,6 @@ public class RecyclerAdapterdp extends RecyclerView.Adapter<RecyclerAdapterdp.Re
             return 0;
         }
     }
-
 
     public void swapCursor(Cursor newCursor) {
         try {

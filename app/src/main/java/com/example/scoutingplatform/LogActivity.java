@@ -1,11 +1,6 @@
 package com.example.scoutingplatform;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -60,33 +55,22 @@ public class LogActivity extends AppCompatActivity {
             }
         });
 
-        btnClear.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(ct);
-                builder.setTitle("Please confirm");
-                builder.setMessage("Are you sure you want to clear the log?");
-                builder.setCancelable(true);
+        btnClear.setOnClickListener(v -> {
+            androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(ct);
+            builder.setTitle("Please confirm");
+            builder.setMessage("Are you sure you want to clear the log?");
+            builder.setCancelable(true);
 
-                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        mDatabasehelper.deletelogdata();
-                        onBackPressed();
-                    }
-                });
+            builder.setPositiveButton("Yes", (dialogInterface, i) -> {
+                mDatabasehelper.deletelogdata();
+                onBackPressed();
+            });
 
-                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                    }
-                });
-                androidx.appcompat.app.AlertDialog dialog = builder.create();
-                dialog.show();
-
-            }
+            builder.setNegativeButton("No", (dialogInterface, i) -> {
+            });
+            androidx.appcompat.app.AlertDialog dialog = builder.create();
+            dialog.show();
         });
-
     }
 
     private void populateList(String statuscode) {
@@ -95,14 +79,8 @@ public class LogActivity extends AppCompatActivity {
         ArrayList<String> listString = new ArrayList<String>();
         for (int q = 0; q < data2.getCount(); ++q) {
             StringBuilder st = new StringBuilder();
-//            if(data2.getInt(1) != 0)
-//            {
                 st.append("Status:").append(data2.getInt(1));
-//            }
-//            if(data2.getInt(2) != 0)
-//            {
                 st.append(" id: ").append(data2.getInt(2));
-//            }
             if(!TextUtils.isEmpty(data2.getString(3)))
             {
                 st.append(" key: ").append(data2.getString(3));
@@ -111,10 +89,7 @@ public class LogActivity extends AppCompatActivity {
             {
                 st.append(" error:").append(data2.getString(4));
             }
-//            if(!TextUtils.isEmpty(data2.getString(5)))
-//            {
                 st.append(" code: ").append(data2.getInt(5));
-//            }
             if(!TextUtils.isEmpty(data2.getString(6)))
             {
                 st.append(" source: ").append(data2.getString(6));
@@ -127,7 +102,7 @@ public class LogActivity extends AppCompatActivity {
             data2.moveToNext();
         }
         data2.close();
-        dataAdapter2 = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, listString);
+        dataAdapter2 = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, listString);
         lstView.setAdapter(dataAdapter2);
     }
 }

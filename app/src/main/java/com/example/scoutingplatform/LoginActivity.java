@@ -1,7 +1,5 @@
 package com.example.scoutingplatform;
-
 import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -15,25 +13,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.List;
-
 import okhttp3.Credentials;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class LoginActivity extends AppCompatActivity {
-
 
     EditText txtemail;
     EditText txtpassword;
@@ -42,7 +31,6 @@ public class LoginActivity extends AppCompatActivity {
     ConnectivityManager cm;
     NetworkInfo activeNetwork;
     ProgressBar loading;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,16 +41,13 @@ public class LoginActivity extends AppCompatActivity {
         txtdbid = findViewById(R.id.edtDBID);
         btnLogin = findViewById(R.id.login);
         loading = findViewById(R.id.loading);
-        btnLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (CheckForConectivity()) {
-                    loading.setVisibility(View.VISIBLE);
-                    disablebutns();
-                    Authenticate(txtemail.getText().toString(), txtpassword.getText().toString(), txtdbid.getText().toString());
-                } else {
-                    Toast.makeText(getApplicationContext(), "No network.", Toast.LENGTH_SHORT).show();
-                }
+        btnLogin.setOnClickListener(v -> {
+            if (CheckForConectivity()) {
+                loading.setVisibility(View.VISIBLE);
+                disablebutns();
+                Authenticate(txtemail.getText().toString(), txtpassword.getText().toString(), txtdbid.getText().toString());
+            } else {
+                Toast.makeText(getApplicationContext(), "No network.", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -113,31 +98,22 @@ public class LoginActivity extends AppCompatActivity {
                         editor.putString("DBID", dbid);
                         editor.putBoolean("Authorized", true);
                         editor.commit();
-//                        enablebutns();
-//                        Toast.makeText(getApplicationContext(), "Success.", Toast.LENGTH_LONG).show();
                         finish();
                     } else {
-                        LoginActivity.this.runOnUiThread(new Runnable() {
-                            public void run() {
-                                Toast.makeText(getApplicationContext(), "No records found.", Toast.LENGTH_LONG).show();
-                                enablebutns();
-                            }
+                        LoginActivity.this.runOnUiThread(() -> {
+                            Toast.makeText(getApplicationContext(), "No records found.", Toast.LENGTH_LONG).show();
+                            enablebutns();
                         });
                     }
-
-
                 } else {
                     new Thread() {
                         public void run() {
-                            LoginActivity.this.runOnUiThread(new Runnable() {
-                                public void run() {
-                                    Toast.makeText(getApplicationContext(), "Code: " + response.code() + " Message: " + response.message(), Toast.LENGTH_LONG).show();
-                                    enablebutns();
-                                }
+                            LoginActivity.this.runOnUiThread(() -> {
+                                Toast.makeText(getApplicationContext(), "Code: " + response.code() + " Message: " + response.message(), Toast.LENGTH_LONG).show();
+                                enablebutns();
                             });
                         }
                     }.start();
-
                 }
             }
         });
@@ -151,20 +127,14 @@ public class LoginActivity extends AppCompatActivity {
         builder.setMessage("Are you want to exit the app?");
         builder.setCancelable(true);
 
-        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                Intent intent = new Intent(Intent.ACTION_MAIN);
-                intent.addCategory(Intent.CATEGORY_HOME);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-            }
+        builder.setPositiveButton("Yes", (dialogInterface, i) -> {
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
         });
 
-        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-            }
+        builder.setNegativeButton("No", (dialogInterface, i) -> {
         });
         androidx.appcompat.app.AlertDialog dialog = builder.create();
         dialog.show();

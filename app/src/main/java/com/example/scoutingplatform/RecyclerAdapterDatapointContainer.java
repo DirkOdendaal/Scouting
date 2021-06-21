@@ -44,16 +44,11 @@ public class RecyclerAdapterDatapointContainer extends RecyclerView.Adapter<Hold
 
     @Override
     public void onBindViewHolder(@NonNull final Holderdp holder, final int position) {
-//        if (models.get(position).getCount() > 0) {
-//            holder.RelativeLayoutDP.setBackground(ContextCompat.getDrawable(context, R.drawable.edgesgreen));
-//        }
-//       changeColor(position,holder);
-        Log.d("ONBIND", "onBindViewHolder: ");
         if (models.get(position).getDetails().length() > 4) {
             if (models.get(position).getDetails().toLowerCase().contains("none")) {
-                holder.RelativeLayoutDP.setBackground(ContextCompat.getDrawable(context, R.drawable.edgesgreen));
+                holder.RelativeLayoutDP.setBackground(ContextCompat.getDrawable(context, R.color.green));
             } else {
-                holder.RelativeLayoutDP.setBackground(ContextCompat.getDrawable(context, R.drawable.edgessome));
+                holder.RelativeLayoutDP.setBackground(ContextCompat.getDrawable(context, R.color.red));
             }
             holder.btnNone.setEnabled(false);
         }
@@ -62,16 +57,24 @@ public class RecyclerAdapterDatapointContainer extends RecyclerView.Adapter<Hold
         holder.btnNone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-//                    if(!(models.get(position).getDetails().length() > 5)) {
                 String Description = "None";
                 SharedPreferences settings = context.getSharedPreferences("Scouting", 0);
                 String Block = settings.getString("BlockName", "");
-                Cursor data = mDatabaseHelper.getBlockID(Block);
+                Cursor data = null;
+                try {
+                    data = mDatabaseHelper.getBlockID(Block);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 data.moveToFirst();
                 String Blockid = data.getString(0);
                 data.close();
-                String ProductionUnit = mDatabaseHelper.getProductionUnit(Block);
+                String ProductionUnit = null;
+                try {
+                    ProductionUnit = mDatabaseHelper.getProductionUnit(Block);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
                 String Subblock = mDatabaseHelper.getsubblock(Block);
                 String ScoutingMethod = settings.getString("ScoutingMethod", "");
                 String Location = settings.getString("location", "");
@@ -85,27 +88,35 @@ public class RecyclerAdapterDatapointContainer extends RecyclerView.Adapter<Hold
                 String gender = "";
                 UUID idd = java.util.UUID.randomUUID();
                 String guid = idd.toString().replace("-", "");
-                boolean saved = mDatabaseHelper.addCapData(CapturePoint, gender, ScoutingMethod, Phase, Pos, Location, getCurrentTimeStamp(), ProductionUnit, Block, Subblock, Quan, Sev, Datapoint, Description, guid, "", Blockid, barcode);
-                Log.d("cap", "onClick: " + CapturePoint + gender + ScoutingMethod + Phase + Pos + Location + getCurrentTimeStamp() + ProductionUnit + Block + Subblock + Quan + Sev + Datapoint + Description + Blockid);
+                boolean saved = mDatabaseHelper.addCapData(
+                        CapturePoint,
+                        gender,
+                        ScoutingMethod,
+                        Phase,
+                        Pos,
+                        Location,
+                        getCurrentTimeStamp(),
+                        ProductionUnit,
+                        Block,
+                        Subblock,
+                        Quan,
+                        Sev,
+                        Datapoint,
+                        Description,
+                        guid,
+                        "",
+                        Blockid,
+                        barcode
+                );
 
                 if (saved) {
-//                            onBindViewHolder(holder,position);
-//                            Intent intent = new Intent(BROADCAST_ACTION);
-//                            context.sendBroadcast(intent);
-
-                    holder.RelativeLayoutDP.setBackground(ContextCompat.getDrawable(context, R.drawable.edgesgreen));
+                    holder.RelativeLayoutDP.setBackground(ContextCompat.getDrawable(context, R.color.green));
                     holder.btnNone.setEnabled(false);
                     holder.txtDetailsRecords.setText("1 - None");
                     Log.d("cap", "onClick: Saved");
                 } else {
                     Log.d("cap", "onClick: Not saved");
                 }
-//                    }
-//                    else
-//                    {
-//                        Toast.makeText(context, "Already contains a pest. Cannot be \"None\".", Toast.LENGTH_SHORT).show();
-//                    }
-
             }
         });
         holder.btnViewRecords.setOnClickListener(new View.OnClickListener() {
@@ -119,11 +130,6 @@ public class RecyclerAdapterDatapointContainer extends RecyclerView.Adapter<Hold
                 context.startActivity(intentls);
             }
         });
-        //this.notifyDataSetChanged();
-    }
-
-    private void changeColor(final int position, Holderdp holder) {
-
     }
 
     private static String getCurrentTimeStamp() {

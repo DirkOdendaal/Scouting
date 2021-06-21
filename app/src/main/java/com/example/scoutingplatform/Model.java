@@ -72,7 +72,6 @@ public class Model {
 
     private String Details;
 
-
     public String getCP() {
         return CP;
     }

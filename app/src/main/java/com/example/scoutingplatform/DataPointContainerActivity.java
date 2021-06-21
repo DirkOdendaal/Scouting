@@ -39,14 +39,11 @@ public class DataPointContainerActivity extends AppCompatActivity {
         ct = this;
         SharedPreferences settings = getSharedPreferences("Scouting", 0);
         Integer reqdp = settings.getInt("RequiredDataPoints", 0);
-        //String ScannedText = settings.getString("ScannedText", "");
-       // Toast.makeText(this,ScannedText,Toast.LENGTH_SHORT).show();
         btnBackdpca = findViewById(R.id.btnBackdpca);
         btnBackdpca.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                Intent b = new Intent(getBaseContext(), MapsActivity.class);
-               b.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 b.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 navigateUpTo(b);
             }
@@ -62,20 +59,11 @@ public class DataPointContainerActivity extends AppCompatActivity {
             public void onReceive(Context context, Intent intent) {
                 SharedPreferences settings = getSharedPreferences("Scouting", 0);
                 Integer reqdp = settings.getInt("RequiredDataPoints", 0);
-//                ArrayList<Modeldp> ls = getMyList(reqdp);
                 myAdapter = new RecyclerAdapterDatapointContainer(ct, getMyList(reqdp),getIntent());
-//                myAdapter.notifyDataSetChanged();
-//                myAdapter.notifyItemRangeChanged(0, ls.size());
-
-                //recyclerView.invalidate();
               int scrollstate =  recyclerView.getScrollState();
-//                recyclerView
                 recyclerView.setAdapter(myAdapter);
-
             }
         };
-
-
     }
 
     @Override
@@ -117,7 +105,6 @@ public class DataPointContainerActivity extends AppCompatActivity {
             m.setCount(mDatabaseHelper.getCapdpCount(getIntent().getStringExtra("CapturePoint"), "DataPoint " + String.valueOf(i)));
             m.setDetails(mDatabaseHelper.getCapdpCount(getIntent().getStringExtra("CapturePoint"), "DataPoint " + String.valueOf(i)) + " - " + st.toString());
             m.setBarcode(getIntent().getStringExtra("Barcode"));
-          //m.setDetails(mDatabaseHelper.getCapdpCount(getIntent().getStringExtra("CapturePoint"), "DataPoint " + String.valueOf(i)) + "/" + requireddp);
             myList.add(m);
         }
         return myList;
