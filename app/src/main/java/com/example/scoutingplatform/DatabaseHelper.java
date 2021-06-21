@@ -297,50 +297,44 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Cursor getCapData() {
         SQLiteDatabase db = this.getWritableDatabase();
         String query = "SELECT * FROM " + CAP_TABLE_NAME + " WHERE (" + CAP_COL16 + " IS NULL OR " + CAP_COL16 + " = \"\") AND (" + CAP_COL17 + " IS NULL OR " + CAP_COL17 + " = \"\") ";
-        Cursor data = db.rawQuery(query, null);
-        return data;
+        return db.rawQuery(query, null);
     }
 
     public Cursor getCapDataImages() {
         SQLiteDatabase db = this.getWritableDatabase();
         String query = "SELECT * FROM " + CAP_TABLE_NAME + " WHERE (" + CAP_COL16 + " IS NULL OR " + CAP_COL16 + " = \"\") AND (" + CAP_COL17 + " IS NOT NULL OR " + CAP_COL17 + " != \"\") ";
-        Cursor data = db.rawQuery(query, null);
-        return data;
+        return db.rawQuery(query, null);
     }
 
     public Cursor getCapDataforCP(String Cappoint, String DataPoint) {
         SQLiteDatabase db = this.getWritableDatabase();
         String query = "SELECT " + COL0 + "," + CAP_COL1 + "," + CAP_COL2 + "," + CAP_COL3 + "," + CAP_COL4 + "," + CAP_COL5 + "," + CAP_COL6 + "," + CAP_COL7 + "," + CAP_COL8 + "," + CAP_COL9 + "," + CAP_COL10 + "," + CAP_COL11 + "," + CAP_COL12 + "," + CAP_COL13 + "," + CAP_COL14 + "," + CAP_COL15 + "," + CAP_COL16 + " FROM " + CAP_TABLE_NAME + " WHERE " + CAP_COL1 + " = " + "\"" + Cappoint + "\" AND " + CAP_COL13 + " = " + "\"" + DataPoint + "\"";
-        Cursor data = db.rawQuery(query, null);
-        return data;
+        return db.rawQuery(query, null);
     }
 
     public Cursor getBlockData() {
         SQLiteDatabase db = this.getWritableDatabase();
         String query = "SELECT * FROM " + BLOCK_TABLE_NAME;
-        Cursor data = db.rawQuery(query, null);
-        return data;
+        return db.rawQuery(query, null);
     }
 
     public Cursor getBlockID(String name) {
         SQLiteDatabase db = this.getWritableDatabase();
         String query = "SELECT " + COL4 + " FROM " + BLOCK_TABLE_NAME + " WHERE " + COL1 + " = \"" + name + "\"";
-        Cursor data = db.rawQuery(query, null);
-        return data;
+        return db.rawQuery(query, null);
     }
 
     public List<String> getMethods() {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
 
-        // Select All Query
         String selectQuery = "SELECT  * FROM " + METHODS_TABLE_NAME + " ORDER BY " + MCOL1 + " DESC";
 
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(selectQuery, null);//selectQuery,selectedArguments
+        Cursor cursor = db.rawQuery(selectQuery, null);
 
         if (cursor.moveToFirst()) {
             do {
-                list.add(cursor.getString(1));//adding 2nd column data
+                list.add(cursor.getString(1));
             } while (cursor.moveToNext());
         }
 
@@ -351,7 +345,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public List<String> getBlocks() {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
         String selectQuery = "SELECT  * FROM " + BLOCK_TABLE_NAME + " ORDER BY " + COL3 + " ASC, " + COL1 + " DESC"; //, " +COL1 + " ASC"
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -483,9 +477,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         try {
             SQLiteDatabase db = this.getReadableDatabase();
             String selectQuery = "SELECT " + CAP_COL14 + " FROM " + CAP_TABLE_NAME + " WHERE " + CAP_COL1 + " = " + "\"" + CapturePoint + "\" AND " + CAP_COL13 + " = " + "\"" + DataPoint + "\"";
-            Cursor cursor = db.rawQuery(selectQuery, null);
-            //db.close();
-            return cursor;
+            return db.rawQuery(selectQuery, null);
 
         } catch (Exception err) {
             Log.d(TAG, "getCapCount: " + err.getMessage());
@@ -493,16 +485,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-    public Cursor getPDDDData() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        String query = "SELECT * FROM " + PDDD_TABLE_NAME;
-        Cursor data = db.rawQuery(query, null);
-
-        return data;
-    }
-
     public List<String> getPDDDDescriptions(String scoutingmethod) {
-        List<String> list = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
 
         String selectQuery = "SELECT  * FROM " + PDDD_TABLE_NAME + " WHERE " + PDDD_COL4 + " LIKE \"%" + scoutingmethod + "%\"" + " ORDER BY " + PDDD_COL1 + " ASC";
 
@@ -522,8 +506,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public List<String> getPDDDPhases(String descr) {
         try {
-            List<String> list = new ArrayList<String>();
-            List<String> list2 = new ArrayList<String>();
+            List<String> list = new ArrayList<>();
+            List<String> list2 = new ArrayList<>();
 
             String selectQuery = "SELECT DISTINCT " + PDDD_COL5 + " FROM " + PDDD_TABLE_NAME + " WHERE " + PDDD_COL1 + " = " + "\"" + descr + "\"" + " ORDER BY " + PDDD_COL5 + " ASC";
 
@@ -551,8 +535,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     public List<String> getPDDDPos(String descr) {
-        List<String> list = new ArrayList<String>();
-        List<String> list2 = new ArrayList<String>();
+        List<String> list = new ArrayList<>();
+        List<String> list2 = new ArrayList<>();
 
         String selectQuery = "SELECT DISTINCT " + PDDD_COL6 + " FROM " + PDDD_TABLE_NAME + " WHERE " + PDDD_COL1 + " = " + "\"" + descr + "\"" + " ORDER BY " + PDDD_COL6 + " ASC";
 
@@ -612,11 +596,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.delete(METHODS_TABLE_NAME, null, null);
     }
 
-    public void deleteCapData() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(CAP_TABLE_NAME, null, null);
-    }
-
     public void deletelogdata() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(LOG_TABLE_NAME, null, null);
@@ -645,17 +624,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.delete(LOCH_TABLE_NAME, null, null);
     }
 
-    public boolean addLocationHistory(String DateTime) {
+    public void addLocationHistory(String DateTime) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(LHCOL2, DateTime);
         long result = db.insert(LOCH_TABLE_NAME, null, contentValues);
-
-        if (result == -1) {
-            return false;
-        } else {
-            return true;
-        }
     }
 
     public boolean appendLocationHistory(String latlong, String Date) {
