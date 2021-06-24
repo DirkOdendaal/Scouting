@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -31,6 +32,7 @@ import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -283,30 +285,28 @@ public class CaptureActivity extends AppCompatActivity {
             });
 
             btnCamera.setOnClickListener(v -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(mycontext, "Pressed", Toast.LENGTH_SHORT).show();
 
-                        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-                        StrictMode.setVmPolicy(builder.build());
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 
-                        String file = dir + guid + ".jpg";
-                        File newfile = new File(file);
-                        try {
-                            newfile.createNewFile();
-                        } catch (IOException e) {
-                            Log.d("PHOTO", "Could not create file");
-                        }
+                    StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
+                    StrictMode.setVmPolicy(builder.build());
 
-                        outputFileUri = Uri.fromFile(newfile);
-                        Log.d("PHOTO", "onClick: outp" + outputFileUri);
-                        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-                        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
-
-                        startActivityForResult(cameraIntent, IMAGE_CAPTURE_CODE);
-
-                    } else {
-                        checkCameraPermission();
+                    String file = dir + guid + ".jpg";
+                    File newfile = new File(file);
+                    try {
+                        newfile.createNewFile();
+                    } catch (IOException e) {
+                        Log.d("PHOTO", "Could not create file");
                     }
+
+                    outputFileUri = Uri.fromFile(newfile);
+                    Log.d("PHOTO", "onClick: outp" + outputFileUri);
+                    Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
+
+                    startActivityForResult(cameraIntent, IMAGE_CAPTURE_CODE);
+
                 }
             });
         } catch (Exception e) {
@@ -315,23 +315,6 @@ public class CaptureActivity extends AppCompatActivity {
     }
 
     Uri outputFileUri;
-
-    private void checkCameraPermission() {
-        try {
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.CAMERA)
-                    != PackageManager.PERMISSION_GRANTED) {
-
-                if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.CAMERA}, PERMISSION_CODE);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
     File newfile = null;
 
     private void openCamera() {

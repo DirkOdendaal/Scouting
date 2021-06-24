@@ -2,6 +2,7 @@ package com.example.scoutingplatform;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.content.Intent;
@@ -19,6 +20,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.google.android.gms.vision.CameraSource;
 import com.google.android.gms.vision.Detector;
@@ -118,6 +120,7 @@ public class CameraScanning extends AppCompatActivity {
     protected void onResume() {
         try {
             super.onResume();
+
             barcodeDetector = new BarcodeDetector.Builder(this).setBarcodeFormats(Barcode.ALL_FORMATS).build();
             barcodeDetector.setProcessor(new Detector.Processor<Barcode>() {
                 @Override
@@ -144,7 +147,6 @@ public class CameraScanning extends AppCompatActivity {
     protected void onVisible(boolean create) {
         try {
             if (!create) {
-
                 int orientation = this.getResources().getConfiguration().orientation;
                 if (orientation == Configuration.ORIENTATION_PORTRAIT) {
                     cameraSource = new CameraSource.Builder(this, barcodeDetector)

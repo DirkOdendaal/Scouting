@@ -4,27 +4,19 @@ import com.google.gson.annotations.SerializedName;
 
 public class Block {
     @SerializedName("Id")
-    private final int rowId;
+    private int rowId;
 
     @SerializedName("Scouting Block Display Name")
-    private final String  BlockNo;
+    private String  BlockNo;
 
     @SerializedName("Pushed Co-ords")
-    private final String  PushedCoords;
+    private String  PushedCoords;
 
     @SerializedName("Production Unit")
-    private final String  Pucid;
+    private String  Pucid;
 
     @SerializedName("Block Id")
-    private final String  blockid;
-
-    public Block(int rowId, String blockNo, String pushedCoords, String pucid, String blockid) {
-        this.rowId = rowId;
-        this.BlockNo = blockNo;
-        this.PushedCoords = pushedCoords;
-        this.Pucid = pucid;
-        this.blockid = blockid;
-    }
+    private String  blockid;
 
     public int getRowId() {
         return rowId;

@@ -539,6 +539,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 RotateAnimation rotateAnimation = (RotateAnimation) AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate);
                 btnRefresh.startAnimation(rotateAnimation);
                 ApiBlocks();
+                ApiMethods();
                 SyncData();
             }
         });
@@ -711,6 +712,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (conn) {
             if ((unixTime - syncDate) > 1500) {
                 ApiBlocks();
+                ApiMethods();
                 SyncData();
             }
         }
@@ -846,7 +848,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         public void onLocationResult(LocationResult locationResult) {
             List<Location> locationList = locationResult.getLocations();
             if (locationList.size() > 0) {
-                //The last location in the list is the newest
                 location = locationList.get(locationList.size() - 1);
                 SharedPreferences settings2 = getSharedPreferences("Scouting", 0);
                 SharedPreferences.Editor editor2 = settings2.edit();
@@ -1005,23 +1006,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     Retrofit retrofit;
     AppnosticAPI appnosticAPI;
-    Call<List<Block>> blockcall;
-    Call<List<ScoutingMethods>> Scoutcall;
-    long blockcount = 0;
+    Call<List<Block>> blockCall;
+    Call<List<ScoutingMethods>> scoutCall;
+    List<Block> blocks;
+    List<Block> blocksFinal = new ArrayList<>();
+    List<ScoutingMethods> methods;
+    List<ScoutingMethods> methodsFinal = new ArrayList<>();
+    long skipBlock = 0;
+    long skipMethod = 0;
 
-
-    //Changes these calls to one method and one url with a count on the skip. Make recursive method. All 3 calls calling is using runtime.
     public void ApiBlocks() {
-        mDatabaseHelper.deleteBlockData();
-        blockcount = 0;
         final SharedPreferences settings = getSharedPreferences("UserInfo", 0);
         retrofit = new Retrofit.Builder()
                 .baseUrl("https://appnostic.dbflex.net/secure/api/v2/" + settings.getString("DBID", "") + "/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         appnosticAPI = retrofit.create(AppnosticAPI.class);
-        blockcall = appnosticAPI.getBlocks(Credentials.basic(settings.getString("email", ""), settings.getString("password", "")));
-        blockcall.enqueue(new Callback<List<Block>>() {
+        blockCall = appnosticAPI.getBlocks(String.valueOf(skipBlock), Credentials.basic(settings.getString("email", ""), settings.getString("password", "")));
+        blockCall.enqueue(new Callback<List<Block>>() {
             @Override
             public void onResponse(Call<List<Block>> blockcall, Response<List<Block>> response) {
                 if (!response.isSuccessful()) {
@@ -1029,61 +1031,45 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     return;
                 }
                 if (response.body() != null) {
-                    List<Block> blocks = response.body();
-                    mDatabaseHelper.addBlockData(blocks);
-                    DrawBlocks();
+                    blocks = response.body();
+                    if (blocks.size() == 500) {
+                        skipBlock += 500;
+                        blocksFinal.addAll(blocks);
+                        ApiBlocks();
+                    } else {
+                        blocksFinal.addAll(blocks);
+                        mDatabaseHelper.deleteBlockData();
+                        mDatabaseHelper.addBlockData(blocksFinal);
+                        DrawBlocks();
+                        Toast.makeText(ct, "Updated Blocks", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
 
             @Override
             public void onFailure(Call<List<Block>> blockcall, Throwable t) {
+                Log.d("failBlockCall", "onFailure: " + t);
             }
         });
 
+        long unixTime = System.currentTimeMillis() / 1000L;
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putLong("syncDate", unixTime);
 
-        blockcall = appnosticAPI.getNextBlocks(Credentials.basic(settings.getString("email", ""), settings.getString("password", "")));
-        blockcall.enqueue(new Callback<List<Block>>() {
-            @Override
-            public void onResponse(Call<List<Block>> blockcall, Response<List<Block>> response) {
-                if (!response.isSuccessful()) {
-                    Toast.makeText(getApplicationContext(), "Code: " + response.code(), Toast.LENGTH_LONG).show();
-                    return;
-                }
-                if (response.body() != null) {
-                    List<Block> blocks = response.body();
-                    mDatabaseHelper.addBlockData(blocks);
-                    DrawBlocks();
-                }
-            }
+        editor.apply();
+    }
 
-            @Override
-            public void onFailure(Call<List<Block>> blockcall, Throwable t) {
-                Log.d("RESPONSES", "onFailure: " + t);
-            }
-        });
+    public void ApiMethods() {
 
-        blockcall = appnosticAPI.getNextNextBlocks(Credentials.basic(settings.getString("email", ""), settings.getString("password", "")));
-        blockcall.enqueue(new Callback<List<Block>>() {
-            @Override
-            public void onResponse(Call<List<Block>> blockcall, Response<List<Block>> response) {
-                if (!response.isSuccessful()) {
-                    Toast.makeText(getApplicationContext(), "Code: " + response.code(), Toast.LENGTH_LONG).show();
-                    return;
-                }
-                if (response.body() != null) {
-                    List<Block> blocks = response.body();
-                    mDatabaseHelper.addBlockData(blocks);
-                    DrawBlocks();
-                }
-            }
+        final SharedPreferences settings = getSharedPreferences("UserInfo", 0);
+        retrofit = new Retrofit.Builder()
+                .baseUrl("https://appnostic.dbflex.net/secure/api/v2/" + settings.getString("DBID", "") + "/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        appnosticAPI = retrofit.create(AppnosticAPI.class);
 
-            @Override
-            public void onFailure(Call<List<Block>> blockcall, Throwable t) {
-            }
-        });
-
-        Scoutcall = appnosticAPI.getScoutingMethods(Credentials.basic(settings.getString("email", ""), settings.getString("password", "")));
-        Scoutcall.enqueue(new Callback<List<ScoutingMethods>>() {
+        scoutCall = appnosticAPI.getScoutingMethods(String.valueOf(skipMethod), Credentials.basic(settings.getString("email", ""), settings.getString("password", "")));
+        scoutCall.enqueue(new Callback<List<ScoutingMethods>>() {
             @Override
             public void onResponse(Call<List<ScoutingMethods>> scoutcall, Response<List<ScoutingMethods>> response) {
                 if (!response.isSuccessful()) {
@@ -1091,9 +1077,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     return;
                 }
                 if (response.body() != null) {
-                    mDatabaseHelper.deleteMethods();
-                    List<ScoutingMethods> ScoutingMethods = response.body();
-                    mDatabaseHelper.addScoutingMethods(ScoutingMethods);
+                    methods = response.body();
+                    if (methods.size() == 500) {
+                        skipMethod += 500;
+                        methodsFinal.addAll(methods);
+                        ApiMethods();
+                    } else {
+                        methodsFinal.addAll(methods);
+                        mDatabaseHelper.deleteMethods();
+                        mDatabaseHelper.addScoutingMethods(methodsFinal);
+                        Toast.makeText(ct, "Updated Methods", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
 
@@ -1106,7 +1100,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         long unixTime = System.currentTimeMillis() / 1000L;
         SharedPreferences.Editor editor = settings.edit();
         editor.putLong("syncDate", unixTime);
-        Toast.makeText(getApplicationContext(), "Updated.", Toast.LENGTH_SHORT).show();
 
         editor.apply();
     }
@@ -1156,7 +1149,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             e.printStackTrace();
         }
     }
-
 
     private Boolean CheckForConectivity() {
         ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -1208,6 +1200,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    //change to Retrofit Request on AppnosticAPI
     public void SyncData() {
         SharedPreferences settings = getSharedPreferences("UserInfo", 0);
         OkHttpClient client = new OkHttpClient().newBuilder()

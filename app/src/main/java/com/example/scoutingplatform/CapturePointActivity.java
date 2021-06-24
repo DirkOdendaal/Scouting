@@ -33,7 +33,6 @@ public class CapturePointActivity extends AppCompatActivity {
             Integer reqcp = settings.getInt("RequiredCapturePoints", 0);
             BlockName = settings.getString("BlockName", "");
             forceScan = settings.getBoolean("ForceScan", false);
-            Log.d("FORCESCAN", "onCreate: " + forceScan);
 
             setContentView(R.layout.activity_capture);
             recyclerView = findViewById(R.id.recy);
@@ -99,7 +98,6 @@ public class CapturePointActivity extends AppCompatActivity {
                 m.setCountneeded(requireddp);
                 m.setBlockName(BlockName);
                 m.setCP(BlockName + " - " + i + " - " + CapturePoint);
-                Log.d("CPcheck", "getMyList: " + BlockName + " - " + i);
                 myList.add(m);
             }
             return myList;

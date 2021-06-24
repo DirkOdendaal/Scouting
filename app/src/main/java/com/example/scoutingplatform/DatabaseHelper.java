@@ -200,16 +200,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     COL5 + ") " +
                     "VALUES (?, ?, ?, ?, ?)";
             db.beginTransaction();
-
+            Log.d(TAG, "addBlockData: " + blocks);
             SQLiteStatement stmt = db.compileStatement(sql);
             for (int i = 0; i < blocks.size(); i++) {
-                stmt.bindString(1, blocks.get(i).getBlockNo());
-                stmt.bindString(2, blocks.get(i).getPushedCoords());
-                stmt.bindString(3, blocks.get(i).getPucid());
-                stmt.bindString(4, blocks.get(i).getBlockid());
-                stmt.bindString(5, String.valueOf(blocks.get(i).getRowId()));
-                stmt.execute();
-                stmt.clearBindings();
+                String block = blocks.get(i).getBlockNo();
+                String pushCo = blocks.get(i).getPushedCoords();
+                String pucId = blocks.get(i).getPucid();
+                String blockId = blocks.get(i).getBlockid();
+                String rowId = String.valueOf(blocks.get(i).getRowId());
+
+//                if (!block.isEmpty() && !pushCo.isEmpty() && !pucId.isEmpty()
+//                        && !blockId.isEmpty() && !rowId.isEmpty()) {
+                    stmt.bindString(1, block);
+                    stmt.bindString(2, pushCo);
+                    stmt.bindString(3, pucId);
+                    stmt.bindString(4, blockId);
+                    stmt.bindString(5, rowId);
+                    stmt.execute();
+                    stmt.clearBindings();
+//                }
             }
 
             db.setTransactionSuccessful();
