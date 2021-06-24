@@ -26,7 +26,6 @@ public class DataPointActivity extends AppCompatActivity {
     Button btnAdd;
     Button btnBackDPA;
     RecyclerAdapterdp mAdapter;
-    ArrayList<RecyclerAdapterdp> mAdapterList = new ArrayList<>();
     BroadcastReceiver br;
     CheckBox selectall;
     TextView txtCount;

@@ -247,8 +247,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 builder.setNegativeButton("Cancel", (dialog, whichButton) -> {
                 });
 
-                spinnerMethods = (Spinner) update_layout.findViewById(R.id.spMethods);
-                spinnerblocks = (Spinner) update_layout.findViewById(R.id.spBlocks);
+                spinnerMethods = update_layout.findViewById(R.id.spMethods);
+                spinnerblocks =  update_layout.findViewById(R.id.spBlocks);
                 List<String> methods = null;
                 try {
                     methods = mDatabaseHelper.getMethods();
@@ -861,7 +861,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             line.remove();
                         }
                         line = mGoogleMap.addPolyline(pl
-                                .add(latLng)//, lastlatLng
+                                .add(latLng)
                                 .color(Color.argb(150, 255, 0, 0)));
                         line.setPattern(PATTERN_POLYLINE_DOTTED);
                         line.setJointType(JointType.ROUND);
