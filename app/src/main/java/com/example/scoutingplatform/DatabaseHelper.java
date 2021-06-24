@@ -209,16 +209,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 String blockId = blocks.get(i).getBlockid();
                 String rowId = String.valueOf(blocks.get(i).getRowId());
 
-//                if (!block.isEmpty() && !pushCo.isEmpty() && !pucId.isEmpty()
-//                        && !blockId.isEmpty() && !rowId.isEmpty()) {
-                    stmt.bindString(1, block);
-                    stmt.bindString(2, pushCo);
-                    stmt.bindString(3, pucId);
-                    stmt.bindString(4, blockId);
-                    stmt.bindString(5, rowId);
-                    stmt.execute();
-                    stmt.clearBindings();
-//                }
+                stmt.bindString(1, block);
+                stmt.bindString(2, pushCo);
+                stmt.bindString(3, pucId);
+                stmt.bindString(4, blockId);
+                stmt.bindString(5, rowId);
+                stmt.execute();
+                stmt.clearBindings();
             }
 
             db.setTransactionSuccessful();

@@ -1,4 +1,5 @@
 package com.example.scoutingplatform;
+
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.database.Cursor;
@@ -39,7 +40,7 @@ public class LogActivity extends AppCompatActivity {
             data.moveToNext();
         }
         data.close();
-        dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, statuscodes);
+        dataAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, statuscodes);
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         sp.setAdapter(dataAdapter);
 
@@ -76,7 +77,7 @@ public class LogActivity extends AppCompatActivity {
     private void populateList(String statuscode) {
         Cursor data2 = mDatabasehelper.getlogDatabystat(statuscode);
         data2.moveToFirst();
-        ArrayList<String> listString = new ArrayList<String>();
+        ArrayList<String> listString = new ArrayList<>();
         for (int q = 0; q < data2.getCount(); ++q) {
             StringBuilder st = new StringBuilder();
                 st.append("Status:").append(data2.getInt(1));

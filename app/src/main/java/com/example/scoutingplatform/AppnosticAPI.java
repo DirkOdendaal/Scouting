@@ -7,11 +7,11 @@ import retrofit2.http.Query;
 
 public interface AppnosticAPI {
 
-    String scoutingmethods = "Scouting%20Method/List%20All/select.json";
-
+    //Scouting Blocks
     @GET("Annual%20Census/ScoutingBlocks/select.json")
     Call<List<Block>> getBlocks(@Query("skip") String skip, @Header("Authorization") String credentials);
 
-    @GET(scoutingmethods)
+    //Scouting Methods
+    @GET("Scouting%20Method/List%20All/select.json")
     Call<List<ScoutingMethods>> getScoutingMethods(@Query("skip") String skip, @Header("Authorization") String credentials);
 }

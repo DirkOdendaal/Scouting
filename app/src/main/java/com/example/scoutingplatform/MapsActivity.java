@@ -34,12 +34,10 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
-
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -65,7 +63,6 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
 import okhttp3.Credentials;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -76,7 +73,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.converter.gson.GsonConverterFactory;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -92,9 +88,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
-
 import com.google.maps.android.PolyUtil;
-
 import retrofit2.Retrofit;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -533,9 +527,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         btnRefresh.setOnClickListener(v -> {
             Boolean conn = CheckForConectivity();
             if (!conn) {
-
                 Toast.makeText(getApplicationContext(), "No network found.", Toast.LENGTH_SHORT).show();
             } else {
+                buttonScout.setEnabled(false);
+                buttonScout.setText("Loading Data");
                 RotateAnimation rotateAnimation = (RotateAnimation) AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate);
                 btnRefresh.startAnimation(rotateAnimation);
                 ApiBlocks();
@@ -856,7 +851,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 if (!hist) {
                     latLng = new LatLng(location.getLatitude(), location.getLongitude());
                     if (mLastLocation != null) {
-                        LatLng lastlatLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
                         if (line != null) {
                             line.remove();
                         }
@@ -969,14 +963,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if (grantResults.length > 0) {
                 for (int i = 0; i < permissions.length; i++)
                     perms.put(permissions[i], grantResults[i]);
-                if (perms.get(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED && perms.get(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && perms.get(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED && perms.get(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    Log.d("PERMISSIONS", "camera & location & write services permission granted");
+                if (perms.get(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+                        && perms.get(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                        && perms.get(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
+                        && perms.get(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                     mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
                     mGoogleMap.setMyLocationEnabled(true);
                 } else {
-                    Log.d("PERMISSIONS", "Some permissions are not granted ask again ");
                     if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA) || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION) || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                        showDialogOK("Camera, Location Services and External Storage Permissions are required for this app.",
+                        showDialogOK(
                                 (dialog, which) -> {
                                     switch (which) {
                                         case DialogInterface.BUTTON_POSITIVE:
@@ -995,9 +990,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    private void showDialogOK(String message, DialogInterface.OnClickListener okListener) {
+    private void showDialogOK(DialogInterface.OnClickListener okListener) {
         new AlertDialog.Builder(this)
-                .setMessage(message)
+                .setMessage("Camera, Location Services and External Storage Permissions are required for this app.")
                 .setPositiveButton("OK", okListener)
                 .setNegativeButton("Cancel", okListener)
                 .create()
@@ -1025,7 +1020,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         blockCall = appnosticAPI.getBlocks(String.valueOf(skipBlock), Credentials.basic(settings.getString("email", ""), settings.getString("password", "")));
         blockCall.enqueue(new Callback<List<Block>>() {
             @Override
-            public void onResponse(Call<List<Block>> blockcall, Response<List<Block>> response) {
+            public void onResponse(@NonNull Call<List<Block>> blockcall, Response<List<Block>> response) {
                 if (!response.isSuccessful()) {
                     Toast.makeText(getApplicationContext(), "Code: " + response.code(), Toast.LENGTH_LONG).show();
                     return;
@@ -1042,6 +1037,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         mDatabaseHelper.addBlockData(blocksFinal);
                         DrawBlocks();
                         Toast.makeText(ct, "Updated Blocks", Toast.LENGTH_SHORT).show();
+                        buttonScout.setEnabled(true);
+                        buttonScout.setText("Scout");
                     }
                 }
             }
@@ -1125,8 +1122,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         String[] SeparateCoords = Coords.split(";");
                         PolygonOptions Polygon1 = new PolygonOptions()
                                 .clickable(true);
-                        for (int i = 0; i < SeparateCoords.length; i++) {
-                            String[] latlong = SeparateCoords[i].split(",");
+                        for (String separateCoord : SeparateCoords) {
+                            String[] latlong = separateCoord.split(",");
                             double latitude = Double.parseDouble(latlong[0]);
                             double longitude = Double.parseDouble(latlong[1]);
                             LatLng polyCoords = new LatLng(latitude, longitude);
@@ -1153,18 +1150,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private Boolean CheckForConectivity() {
         ConnectivityManager cm = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        if (activeNetwork == null) {
-            return false;
-        } else {
-            return true;
-        }
+        return activeNetwork != null;
     }
 
     public void postmanUpload() {
 
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
-        MediaType mediaType = MediaType.parse("text/plain");
         RequestBody body = new MultipartBody.Builder().setType(MultipartBody.FORM)
                 .addFormDataPart("Photo", "/storage/emulated/0/Download/Img1.jpg",
                         RequestBody.create(MediaType.parse("application/octet-stream"),
@@ -1195,7 +1187,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         for (int i = 0; i <= message.length() / maxLogSize; i++) {
             int start = i * maxLogSize;
             int end = (i + 1) * maxLogSize;
-            end = end > message.length() ? message.length() : end;
+            end = Math.min(end, message.length());
             android.util.Log.d(TAG, "number" + i + " " + message.substring(start, end));
         }
     }
@@ -1246,6 +1238,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         });
+
     }
 }
 

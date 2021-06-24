@@ -13,7 +13,6 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StrictMode;
@@ -52,6 +51,8 @@ public class CaptureActivity extends AppCompatActivity {
     ImageView imageView6;
     String dir;
     String guid;
+    Uri outputFileUri;
+    File newFile = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -285,69 +286,29 @@ public class CaptureActivity extends AppCompatActivity {
             });
 
             btnCamera.setOnClickListener(v -> {
-                Toast.makeText(mycontext, "Pressed", Toast.LENGTH_SHORT).show();
 
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
+                        && ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
 
                     StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
                     StrictMode.setVmPolicy(builder.build());
 
                     String file = dir + guid + ".jpg";
-                    File newfile = new File(file);
+                    newFile = new File(file);
                     try {
-                        newfile.createNewFile();
+                        newFile.createNewFile();
                     } catch (IOException e) {
                         Log.d("PHOTO", "Could not create file");
                     }
 
-                    outputFileUri = Uri.fromFile(newfile);
+                    outputFileUri = Uri.fromFile(newFile);
                     Log.d("PHOTO", "onClick: outp" + outputFileUri);
                     Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
                     cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
 
                     startActivityForResult(cameraIntent, IMAGE_CAPTURE_CODE);
-
                 }
             });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    Uri outputFileUri;
-    File newfile = null;
-
-    private void openCamera() {
-        try {
-            StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-            StrictMode.setVmPolicy(builder.build());
-
-            String file = dir + guid + ".jpg";
-            newfile = new File(file);
-            newfile.createNewFile();
-
-            Uri outputFileUri = Uri.fromFile(newfile);
-
-            Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
-
-            startActivityForResult(cameraIntent, IMAGE_CAPTURE_CODE);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        try {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-            if (requestCode == PERMISSION_CODE) {
-                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    openCamera();
-                } else {
-                    Toast.makeText(this, "Permission denied.", Toast.LENGTH_SHORT).show();
-                }
-            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -367,10 +328,9 @@ public class CaptureActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         try {
             super.onActivityResult(requestCode, resultCode, data);
-            if (requestCode == IMAGE_CAPTURE_CODE && resultCode == RESULT_OK) {
-                Log.d("CameraDemo", "Pic saved");
-                imageView6.setImageURI(outputFileUri);
-            }
+            Log.d("loadPic", "onActivityResult: ");
+            imageView6.setImageURI(outputFileUri);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
