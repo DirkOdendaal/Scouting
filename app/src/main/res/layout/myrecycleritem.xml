@@ -22,20 +22,20 @@
             android:id="@+id/CPrelativeLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@drawable/edges">
+            android:background="@drawable/edges"
+            android:padding="5dp">
 
             <Button
                 android:id="@+id/btnViewDP"
                 style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentTop="true"
                 android:layout_alignParentEnd="true"
-                android:layout_marginTop="5dp"
                 android:layout_marginEnd="10dp"
                 android:text="View"
                 app:iconTint="#FFFFFF"
-                app:strokeColor="#D8D8D8" />
+                app:strokeColor="#D8D8D8"
+                android:layout_centerVertical="true"/>
 
             <TextView
                 android:id="@+id/txtCP"
@@ -54,9 +54,11 @@
                 android:id="@+id/txtBlock"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:maxWidth="130dp"
                 android:layout_below="@+id/txtCP"
                 android:layout_marginStart="8dp"
                 android:layout_toEndOf="@+id/imageView3"
+                android:layout_toLeftOf="@+id/txtDetails"
                 android:text="%Block%"
                 android:textColor="#000000" />
 
@@ -64,11 +66,8 @@
                 android:id="@+id/txtDetails"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignTop="@+id/btnViewDP"
-                android:layout_alignBottom="@+id/btnViewDP"
-                android:layout_marginTop="10dp"
                 android:layout_marginEnd="8dp"
-                android:layout_marginBottom="10dp"
+                android:layout_centerVertical="true"
                 android:layout_toStartOf="@+id/btnViewDP"
                 android:text="%Details%"
                 android:textColor="#000000"

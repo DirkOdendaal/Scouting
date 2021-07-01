@@ -98,6 +98,7 @@ public class PostJobIntentService extends JobIntentService {
                     String GUID = "";
                     String BlockID = "";
                     String barcode = "";
+                    String trap = "";
 
                     if (!TextUtils.isEmpty(data.getString(1))) {
                         CapturePoint = "\"Capture Point\":" + "\"" + data.getString(1) + "\",";
@@ -167,6 +168,10 @@ public class PostJobIntentService extends JobIntentService {
                         barcode = "\"Scanned Field\":" + "\"" + data.getString(19) + "\",";
                     }
 
+                    if (!TextUtils.isEmpty(data.getString(20))) {
+                        trap = "\"Trap\":" + "\"" + data.getString(20) + "\",";
+                    }
+
                     postItem.setJSon("{" +
                             CapturePoint +
                             Gender +
@@ -184,7 +189,8 @@ public class PostJobIntentService extends JobIntentService {
                             PestDescription +
                             GUID +
                             BlockID+
-                            barcode + "}");
+                            barcode +
+                            trap + "}");
                     Log.d(TAG, "JSON: " + postItem.getJSon());
                     PostItems.add(postItem);
 

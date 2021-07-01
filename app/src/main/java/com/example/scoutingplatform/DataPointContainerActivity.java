@@ -38,9 +38,9 @@ public class DataPointContainerActivity extends AppCompatActivity {
         btnBackdpca.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               Intent b = new Intent(getBaseContext(), MapsActivity.class);
-                b.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                navigateUpTo(b);
+               Intent b = new Intent(getBaseContext(), CapturePointActivity.class);
+               b.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+               navigateUpTo(b);
             }
         });
         recyclerView = findViewById(R.id.recyclerDP);

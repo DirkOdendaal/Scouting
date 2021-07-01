@@ -126,6 +126,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private int requireddatapointsAmount = 0;
     private int requiredCapturepointsAmount = 0;
     private boolean ForceScan;
+    Spinner spinnerProd;
     Spinner spinnerblocks;
     Spinner spinnerMethods;
     Switch swtLowSpec;
@@ -134,6 +135,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Button btnLogOut;
     long lastsynctime = 0;
     final static int PERMISSION_ALL = 1;
+    List<ProductionUnit> puList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -203,8 +205,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         R.layout.selection_dialog, null);
                 final AlertDialog.Builder builder = new AlertDialog.Builder(MapsActivity.this);
 
-
                 builder.setPositiveButton("Confirm", (dialog, whichButton) -> {
+
+                    if (!spinnerblocks.isSelected()) {
+                        Toast.makeText(this, "Please select a block.", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
                     SharedPreferences settings1 = getSharedPreferences("Scouting", 0);
                     SharedPreferences.Editor editor = settings1.edit();
                     editor.putBoolean("busy", true);
@@ -222,6 +229,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         editor2.putInt("RequiredDataPoints", requireddatapointsAmount);
                         editor2.putInt("RequiredCapturePoints", requiredCapturepointsAmount);
                         editor2.putString("BlockName", spinnerblocks.getSelectedItem().toString());
+                        editor2.putString("ProductionUnit", spinnerProd.getSelectedItem().toString());
                         editor2.putString("ScoutingMethod", spinnerMethods.getSelectedItem().toString());
                         UUID idd = UUID.randomUUID();
                         editor2.putString("CapturePoint", idd.toString().replace("-", ""));
@@ -242,6 +250,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 });
 
                 spinnerMethods = update_layout.findViewById(R.id.spMethods);
+                spinnerProd =  update_layout.findViewById(R.id.spProd);
                 spinnerblocks =  update_layout.findViewById(R.id.spBlocks);
                 List<String> methods = null;
                 try {
@@ -277,6 +286,43 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         }
                     }
                 }
+
+                puList = null;
+                try {
+                    puList = mDatabaseHelper.getProductionUnits();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                assert puList != null;
+                ArrayAdapter<ProductionUnit> adapterPU = new ArrayAdapter<>(MapsActivity.this,
+                        android.R.layout.simple_spinner_dropdown_item, puList);
+
+                adapterPU.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinnerProd.setAdapter(adapterPU);
+
+                //TODO-ROBIN Need to set production unit selection here from initial block selection
+
+                spinnerProd.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        List<String> blocks = null;
+                        try {
+                            blocks = mDatabaseHelper.getBlocksByPU(puList.get(position).getPuID());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        assert blocks != null;
+                        Collections.sort(blocks);
+                        ArrayAdapter<String> adapterb = new ArrayAdapter<>(MapsActivity.this,
+                                android.R.layout.simple_spinner_dropdown_item, blocks);
+
+                        adapterb.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        spinnerblocks.setAdapter(adapterb);
+                    }
+
+                    public void onNothingSelected(AdapterView<?> parent) {
+                    }
+                });
+
                 builder.setView(update_layout);
 
                 AlertDialog alert = builder.create();
@@ -525,14 +571,22 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         btnRefresh = findViewById(R.id.btnRefresh);
         btnRefresh.setOnClickListener(v -> {
+            btnRefresh.setEnabled(false);
             Boolean conn = CheckForConectivity();
             if (!conn) {
                 Toast.makeText(getApplicationContext(), "No network found.", Toast.LENGTH_SHORT).show();
             } else {
                 buttonScout.setEnabled(false);
+                blocksFinal = new ArrayList<>();
+                methodsFinal = new ArrayList<>();
+                productionUnitsFinal = new ArrayList<>();
+                skipBlock = 0;
+                skipMethod = 0;
+                skipPU = 0;
                 buttonScout.setText("Loading Data");
                 RotateAnimation rotateAnimation = (RotateAnimation) AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate);
                 btnRefresh.startAnimation(rotateAnimation);
+                ApiProductionUnits();
                 ApiBlocks();
                 ApiMethods();
                 SyncData();
@@ -706,6 +760,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Boolean conn = CheckForConectivity();
         if (conn) {
             if ((unixTime - syncDate) > 1500) {
+                blocksFinal = new ArrayList<>();
+                methodsFinal = new ArrayList<>();
+                productionUnitsFinal = new ArrayList<>();
+                skipBlock = 0;
+                skipMethod = 0;
+                skipPU = 0;
+                ApiProductionUnits();
                 ApiBlocks();
                 ApiMethods();
                 SyncData();
@@ -1007,8 +1068,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     List<Block> blocksFinal = new ArrayList<>();
     List<ScoutingMethods> methods;
     List<ScoutingMethods> methodsFinal = new ArrayList<>();
+    Call<List<ProductionUnit>> prodCall;
+    List<ProductionUnit> productionUnits;
+    List<ProductionUnit> productionUnitsFinal = new ArrayList<>();
     long skipBlock = 0;
     long skipMethod = 0;
+    long skipPU = 0;
 
     public void ApiBlocks() {
         final SharedPreferences settings = getSharedPreferences("UserInfo", 0);
@@ -1038,6 +1103,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         DrawBlocks();
                         Toast.makeText(ct, "Updated Blocks", Toast.LENGTH_SHORT).show();
                         buttonScout.setEnabled(true);
+                        btnRefresh.setEnabled(true);
                         buttonScout.setText("Scout");
                     }
                 }
@@ -1046,6 +1112,51 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onFailure(Call<List<Block>> blockcall, Throwable t) {
                 Log.d("failBlockCall", "onFailure: " + t);
+            }
+        });
+
+        long unixTime = System.currentTimeMillis() / 1000L;
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putLong("syncDate", unixTime);
+
+        editor.apply();
+    }
+
+    public void ApiProductionUnits() {
+
+        final SharedPreferences settings = getSharedPreferences("UserInfo", 0);
+        retrofit = new Retrofit.Builder()
+                .baseUrl("https://appnostic.dbflex.net/secure/api/v2/" + settings.getString("DBID", "") + "/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        appnosticAPI = retrofit.create(AppnosticAPI.class);
+
+        prodCall = appnosticAPI.getProductionUnits(String.valueOf(skipPU), Credentials.basic(settings.getString("email", ""), settings.getString("password", "")));
+        prodCall.enqueue(new Callback<List<ProductionUnit>>() {
+            @Override
+            public void onResponse(Call<List<ProductionUnit>> prodCall, Response<List<ProductionUnit>> response) {
+                if (!response.isSuccessful()) {
+                    Toast.makeText(getApplicationContext(), "Code: " + response.code(), Toast.LENGTH_LONG).show();
+                    return;
+                }
+                if (response.body() != null) {
+                    productionUnits = response.body();
+                    if (productionUnits.size() == 500) {
+                        skipPU += 500;
+                        productionUnitsFinal.addAll(productionUnits);
+                        ApiProductionUnits();
+                    } else {
+                        productionUnitsFinal.addAll(productionUnits);
+                        mDatabaseHelper.deletePUData();
+                        mDatabaseHelper.addPUData(productionUnitsFinal);
+                        Toast.makeText(ct, "Updated ProductionUnits", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<ProductionUnit>> call, Throwable t) {
+                Log.d("RESPONSES", "onFailure: " + t);
             }
         });
 
@@ -1229,7 +1340,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             if (p.getMeasurementType()) {
                                 intmesurmentType = 1;
                             }
-                            mDatabaseHelper.addPDDDData(p.getDescription(), intsaskforgender, intmesurmentType, p.getScoutingMethods(), p.getPhases(), p.getPossiblepestlocations());
+                            int intAskForTrap = 0;
+                            if (p.getAskforTrap()) {
+                                intAskForTrap = 1;
+                            }
+                            mDatabaseHelper.addPDDDData(p.getDescription(), intsaskforgender, intmesurmentType, p.getScoutingMethods(), p.getPhases(), p.getPossiblepestlocations(), intAskForTrap);
                             Toast.makeText(getApplicationContext(), "PDDD Updated.", Toast.LENGTH_SHORT).show();
                         } catch (Exception err) {
                             Log.d("DB", "onResponse: " + err);

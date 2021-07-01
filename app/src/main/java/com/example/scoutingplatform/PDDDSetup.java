@@ -27,6 +27,9 @@ class PDDDSetup implements Serializable{
     @SerializedName("Possible pest locations")
     private String Possiblepestlocations;
 
+    @SerializedName("Ask for Trap")
+    private Boolean AskforTrap;
+
     public String getPossiblepestlocations() {
         return Possiblepestlocations;
     }
@@ -73,5 +76,13 @@ class PDDDSetup implements Serializable{
 
     public void setPhases(String phases) {
         Phases = phases;
+    }
+
+    public Boolean getAskforTrap() {
+        return AskforTrap;
+    }
+
+    public void setAskforTrap(Boolean askforTrap) {
+        AskforTrap = askforTrap;
     }
 }

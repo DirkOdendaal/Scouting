@@ -11,6 +11,10 @@ public interface AppnosticAPI {
     @GET("Annual%20Census/ScoutingBlocks/select.json")
     Call<List<Block>> getBlocks(@Query("skip") String skip, @Header("Authorization") String credentials);
 
+    //Scouting Production Units
+    @GET("Production%20Unit/select.json")
+    Call<List<ProductionUnit>> getProductionUnits(@Query("skip") String skip, @Header("Authorization") String credentials);
+
     //Scouting Methods
     @GET("Scouting%20Method/List%20All/select.json")
     Call<List<ScoutingMethods>> getScoutingMethods(@Query("skip") String skip, @Header("Authorization") String credentials);

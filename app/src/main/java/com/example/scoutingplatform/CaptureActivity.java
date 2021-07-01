@@ -46,6 +46,7 @@ public class CaptureActivity extends AppCompatActivity {
     DatabaseHelper mDatabaseHelper;
     private boolean askfgender;
     private boolean askfquantity;
+    private boolean askfTrap;
     private static final String BROADCAST_ACTION = "BROADCAST_ACTION";
     ImageButton btnCamera;
     ImageView imageView6;
@@ -70,12 +71,14 @@ public class CaptureActivity extends AppCompatActivity {
             final RadioGroup rgGender = findViewById(R.id.rgGender);
             final RadioButton rbMale = findViewById(R.id.rbMale);
             final RadioButton rbFemale = findViewById(R.id.rbFemale);
+            final RadioButton rbSterile = findViewById(R.id.rbSterile);
             final TextView txtGender = findViewById(R.id.txtGender);
             final TextView txtPhase = findViewById(R.id.txtPhase);
             final TextView txtPos = findViewById(R.id.txtPos);
             final TextView txtSeverity = findViewById(R.id.txtSeverity);
             final Spinner spSev = findViewById(R.id.spSeverity);
             final EditText edtQuantity = findViewById(R.id.edtQuantity);
+            final EditText edtTrap = findViewById(R.id.edtTrap);
             SharedPreferences settings = getSharedPreferences("Scouting", 0);
             final List<String> PestDescriptions = mDatabaseHelper.getPDDDDescriptions(settings.getString("ScoutingMethod", ""));
             final Button btnConfirm = findViewById(R.id.btnConfirm);
@@ -123,6 +126,14 @@ public class CaptureActivity extends AppCompatActivity {
                                 askfgender = false;
                             }
 
+                            if (mDatabaseHelper.getPDDDAskTrap(spPest.getSelectedItem().toString())) {
+                                edtTrap.setVisibility(View.VISIBLE);
+                                askfTrap = true;
+                            } else {
+                                edtTrap.setVisibility(View.VISIBLE);
+                                askfTrap = false;
+                            }
+
                             if (mDatabaseHelper.getPDDDMesurementType(spPest.getSelectedItem().toString())) {
                                 edtQuantity.setVisibility(View.VISIBLE);
                                 askfquantity = true;
@@ -148,6 +159,7 @@ public class CaptureActivity extends AppCompatActivity {
                             txtSeverity.setVisibility(View.INVISIBLE);
                             spSev.setVisibility(View.INVISIBLE);
                             edtQuantity.setVisibility(View.INVISIBLE);
+                            edtTrap.setVisibility(View.INVISIBLE);
                             txtPhase.setVisibility(View.INVISIBLE);
                             txtPos.setVisibility(View.INVISIBLE);
                         }
@@ -156,17 +168,21 @@ public class CaptureActivity extends AppCompatActivity {
                             if (askfgender && rgGender.getCheckedRadioButtonId() == -1) {
                                 rbFemale.setError("Please specify a gender.");
                                 rbMale.setError("Please specify a gender.");
+                                rbSterile.setError("Please specify a gender.");
                                 return;
                             }
                             if (TextUtils.isEmpty(edtQuantity.getText()) && askfquantity) {
                                 edtQuantity.setError("Please enter a quantity.");
                                 return;
                             }
+
                             String gender = "";
-                            if (rbFemale.isChecked() && !rbMale.isChecked()) {
+                            if (rbFemale.isChecked()) {
                                 gender = "Female";
-                            } else if (!rbFemale.isChecked() && rbMale.isChecked()) {
+                            } else if (rbMale.isChecked()) {
                                 gender = "Male";
+                            } else if (rbSterile.isChecked()){
+                                gender = "Sterile";
                             }
 
                             String Phase = "";
@@ -175,6 +191,7 @@ public class CaptureActivity extends AppCompatActivity {
                             String Sev = "";
                             String Description = "";
                             String ImagePath = "";
+                            String trap = "";
 
 
                             if (!spPest.getSelectedItem().toString().equals("None")) {
@@ -187,6 +204,9 @@ public class CaptureActivity extends AppCompatActivity {
                                 }
                                 if (!TextUtils.isEmpty(edtQuantity.getText().toString())) {
                                     Quan = Float.parseFloat(edtQuantity.getText().toString());
+                                }
+                                if (!TextUtils.isEmpty(edtTrap.getText().toString())) {
+                                    trap = edtTrap.getText().toString();
                                 }
                                 if ((spSev.getSelectedItemId() != -1 || !TextUtils.isEmpty(spSev.getSelectedItem().toString())) && spSev.getSelectedItem() != null) {
                                     Sev = spSev.getSelectedItem().toString();
@@ -244,7 +264,8 @@ public class CaptureActivity extends AppCompatActivity {
                                     guid,
                                     ImagePath,
                                     Blockid,
-                                    barcode
+                                    barcode,
+                                    trap
                             );
                             if (saved) {
                                 Intent intent = new Intent(BROADCAST_ACTION);
@@ -266,7 +287,8 @@ public class CaptureActivity extends AppCompatActivity {
                                         Datapoint +
                                         Description +
                                         guid +
-                                        ImagePath
+                                        ImagePath +
+                                        trap
                                 );
                             } else {
                                 Toast.makeText(getApplicationContext(), "Failed", Toast.LENGTH_SHORT).show();

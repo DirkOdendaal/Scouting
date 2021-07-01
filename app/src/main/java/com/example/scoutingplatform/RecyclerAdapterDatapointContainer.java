@@ -86,6 +86,7 @@ public class RecyclerAdapterDatapointContainer extends RecyclerView.Adapter<Hold
                 float Quan = 0f;
                 String Sev = "";
                 String gender = "";
+                String trap = "";
                 UUID idd = java.util.UUID.randomUUID();
                 String guid = idd.toString().replace("-", "");
                 boolean saved = mDatabaseHelper.addCapData(
@@ -106,7 +107,8 @@ public class RecyclerAdapterDatapointContainer extends RecyclerView.Adapter<Hold
                         guid,
                         "",
                         Blockid,
-                        barcode
+                        barcode,
+                        trap
                 );
 
                 if (saved) {

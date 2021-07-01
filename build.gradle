@@ -1,9 +1,9 @@
-ext {
-    var = 'D:\\Work\\PieceWork\\KEYSTOREPATH\\FARMTRACEIPM.jks'
-    var1 = 'farmtrace'
-    var2 = 'key0'
-    var3 = 'farmtrace'
-}// Top-level build file where you can add configuration options common to all sub-projects/modules.
+//ext {
+//    var = 'D:\\Work\\PieceWork\\KEYSTOREPATH\\FARMTRACEIPM.jks'
+//    var1 = 'farmtrace'
+//    var2 = 'key0'
+//    var3 = 'farmtrace'
+//}// Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {
     

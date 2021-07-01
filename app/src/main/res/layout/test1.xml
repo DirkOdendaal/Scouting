@@ -130,6 +130,15 @@
                 android:layout_marginTop="0dp"
                 android:text="Female" />
 
+            <RadioButton
+                android:id="@+id/rbSterile"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="0dp"
+                android:layout_weight="1"
+                android:text="Sterile" />
+
         </RadioGroup>
 
         <TextView
@@ -166,6 +175,19 @@
             android:visibility="invisible"
             tools:visibility="visible" />
 
+        <EditText
+            android:id="@+id/edtTrap"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="24dp"
+            android:ems="10"
+            android:hint="Scan Trap"
+            android:inputType="numberDecimal"
+            android:visibility="invisible"
+            tools:visibility="visible" />
+
     </LinearLayout>
 
     <Button
@@ -192,8 +214,8 @@
 
     <ImageView
         android:id="@+id/imageView6"
-        android:layout_width="215dp"
-        android:layout_height="215dp"
+        android:layout_width="205dp"
+        android:layout_height="205dp"
         android:layout_marginBottom="70dp"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
