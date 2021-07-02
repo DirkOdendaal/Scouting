@@ -207,7 +207,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 builder.setPositiveButton("Confirm", (dialog, whichButton) -> {
 
-                    if (!spinnerblocks.isSelected()) {
+                    if (spinnerblocks.getSelectedItem() == null) {
                         Toast.makeText(this, "Please select a block.", Toast.LENGTH_SHORT).show();
                         return;
                     }

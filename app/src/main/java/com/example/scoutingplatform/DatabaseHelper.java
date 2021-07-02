@@ -247,7 +247,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             SQLiteStatement stmt = db.compileStatement(sql);
             for (int i = 0; i < blocks.size(); i++) {
                 String block = blocks.get(i).getBlockNo();
-                String pushCo = blocks.get(i).getPushedCoords();
+                String pushCo = TextUtils.isEmpty(blocks.get(i).getPushedCoords()) ? "" : blocks.get(i).getPushedCoords();
                 String pucId = blocks.get(i).getPucid();
                 String blockId = blocks.get(i).getBlockid();
                 String rowId = String.valueOf(blocks.get(i).getRowId());
