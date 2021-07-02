@@ -104,7 +104,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     public DatabaseHelper(@Nullable Context context) {
-        super(context, BLOCK_TABLE_NAME, null, 19);
+        super(context, BLOCK_TABLE_NAME, null, 20);
     }
 
     //Create Tables
@@ -154,7 +154,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     PDDD_COL3 + " INT, " +
                     PDDD_COL4 + " TEXT, " +
                     PDDD_COL5 + " TEXT, " +
-                    PDDD_COL6 + " TEXT) ";
+                    PDDD_COL6 + " TEXT, " +
+                    PDDD_COL7 + " TEXT) ";
 
             String lochTable = "CREATE TABLE IF NOT EXISTS " + LOCH_TABLE_NAME + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     LHCOL1 + " TEXT, " +

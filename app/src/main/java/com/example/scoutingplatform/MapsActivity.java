@@ -1345,7 +1345,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 intAskForTrap = 1;
                             }
                             mDatabaseHelper.addPDDDData(p.getDescription(), intsaskforgender, intmesurmentType, p.getScoutingMethods(), p.getPhases(), p.getPossiblepestlocations(), intAskForTrap);
-                            Toast.makeText(getApplicationContext(), "PDDD Updated.", Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(getApplicationContext(), "PDDD Updated.", Toast.LENGTH_SHORT).show();
                         } catch (Exception err) {
                             Log.d("DB", "onResponse: " + err);
                         }
