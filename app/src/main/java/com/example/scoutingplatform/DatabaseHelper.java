@@ -104,7 +104,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     public DatabaseHelper(@Nullable Context context) {
-        super(context, BLOCK_TABLE_NAME, null, 20);
+        super(context, BLOCK_TABLE_NAME, null, 21);
     }
 
     //Create Tables
@@ -131,7 +131,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     CAP_COL16 + " TEXT, " +
                     CAP_COL17 + " TEXT, " +
                     CAP_COL18 + " TEXT, " +
-                    CAP_COL19 + " TEXT) ";
+                    CAP_COL19 + " TEXT, " +
+                    CAP_COL20 + " TEXT) ";
 
             String createPhotoTable = "CREATE TABLE IF NOT EXISTS " + PHOTO_TABLE_NAME + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     PHOTO_COL1 + " TEXT, " +
