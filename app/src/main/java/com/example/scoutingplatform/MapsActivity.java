@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -145,6 +146,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mDatabaseHelper = new DatabaseHelper(getApplicationContext());
 
         checkandrequestPermissions();
+
+        try {
+            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            String version = pInfo.versionName;
+            TextView textview_version = findViewById(R.id.txt_version);
+            textview_version.setText("Version " + version);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
 
         txtCount = findViewById(R.id.txtCount);
         spinnerhist = findViewById(R.id.spinnerHistory);
