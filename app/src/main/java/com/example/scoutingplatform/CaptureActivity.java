@@ -130,7 +130,7 @@ public class CaptureActivity extends AppCompatActivity {
                                 edtTrap.setVisibility(View.VISIBLE);
                                 askfTrap = true;
                             } else {
-                                edtTrap.setVisibility(View.VISIBLE);
+                                edtTrap.setVisibility(View.GONE);
                                 askfTrap = false;
                             }
 

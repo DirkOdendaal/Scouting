@@ -104,7 +104,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     public DatabaseHelper(@Nullable Context context) {
-        super(context, BLOCK_TABLE_NAME, null, 21);
+        super(context, BLOCK_TABLE_NAME, null, 22);
     }
 
     //Create Tables
