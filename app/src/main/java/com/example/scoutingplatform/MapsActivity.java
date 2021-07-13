@@ -689,13 +689,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onPause() {
         super.onPause();
         Log.d("msgs", "onPause: ");
-        if (mapActivityViewModel.getBinder() != null) {
-            try {
-                unbindService(mapActivityViewModel.getServiceConnection());
-            } catch (IllegalArgumentException err) {
-                return;
-            }
-        }
     }
 
     @Override
