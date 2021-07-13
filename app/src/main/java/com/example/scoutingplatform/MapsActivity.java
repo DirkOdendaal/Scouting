@@ -18,6 +18,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Looper;
 import android.os.PersistableBundle;
 import android.text.TextUtils;
@@ -35,10 +36,15 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
+
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -64,6 +70,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
 import okhttp3.Credentials;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -74,6 +81,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.converter.gson.GsonConverterFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -89,16 +97,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+
 import com.google.maps.android.PolyUtil;
+
 import retrofit2.Retrofit;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     GoogleMap mGoogleMap;
     SupportMapFragment mapFrag;
-    LocationRequest mLocationRequest;
+    //    LocationRequest mLocationRequest;
     Location mLastLocation;
-    FusedLocationProviderClient mFusedLocationClient;
+    //    FusedLocationProviderClient mFusedLocationClient;
     DatabaseHelper mDatabaseHelper;
     int mapstate;
     FrameLayout sbs;
@@ -137,6 +147,36 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     long lastsynctime = 0;
     final static int PERMISSION_ALL = 1;
     List<ProductionUnit> puList;
+    SharedPreferences userSettings;
+    SharedPreferences scoutSettings;
+    public final static String BROADCAST_ACTION = "BROADCAST_ACTION";
+    BroadcastReceiver br;
+    List<Marker> markers = new ArrayList<>();
+    LatLng latLng;
+    LatLng prevLatlng;
+    Location location;
+    private static final PatternItem DOT = new Dot();
+    private static final PatternItem GAP = new Gap(3);
+    private static final List<PatternItem> PATTERN_POLYLINE_DOTTED = Arrays.asList(GAP, DOT);
+    Retrofit retrofit;
+    AppnosticAPI appnosticAPI;
+    Call<List<Block>> blockCall;
+    Call<List<ScoutingMethods>> scoutCall;
+    List<Block> blocks;
+    List<Block> blocksFinal = new ArrayList<>();
+    List<ScoutingMethods> methods;
+    List<ScoutingMethods> methodsFinal = new ArrayList<>();
+    Call<List<ProductionUnit>> prodCall;
+    List<ProductionUnit> productionUnits;
+    List<ProductionUnit> productionUnitsFinal = new ArrayList<>();
+    long skipBlock = 0;
+    long skipMethod = 0;
+    long skipPU = 0;
+    Polygon polygon1;
+    LatLng lastpoly;
+
+    private LocationService locationService;
+    private MapActivityViewModel mapActivityViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -144,6 +184,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
         ct = this;
         mDatabaseHelper = new DatabaseHelper(getApplicationContext());
+        userSettings = getSharedPreferences("UserInfo", 0);
+        scoutSettings = getSharedPreferences("Scouting", 0);
 
         checkandrequestPermissions();
 
@@ -160,45 +202,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         spinnerhist = findViewById(R.id.spinnerHistory);
         swtLowSpec = findViewById(R.id.swtLowSpec);
         btnLogOut = findViewById(R.id.btnLogOut);
-        SharedPreferences settings = getSharedPreferences("UserInfo", 0);
-        swtLowSpec.setChecked(settings.getBoolean("LowSpec", false));
+        swtLowSpec.setChecked(userSettings.getBoolean("LowSpec", false));
+
         swtLowSpec.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            SharedPreferences settings12 = getSharedPreferences("UserInfo", 0);
-            if (settings12.getBoolean("LowSpec", false)) {
-                SharedPreferences.Editor editor = settings12.edit();
-                editor.putBoolean("LowSpec", false);
-                editor.apply();
-                mLocationRequest.setInterval(3000);
-                mLocationRequest.setFastestInterval(2000);
-                mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-            } else {
-                SharedPreferences.Editor editor = settings12.edit();
-                editor.putBoolean("LowSpec", true);
-                editor.apply();
-                mLocationRequest.setInterval(15000);
-                mLocationRequest.setFastestInterval(14000);
-                mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-            }
-            if (mFusedLocationClient != null) {
-                mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (ContextCompat.checkSelfPermission(getApplicationContext(),
-                        Manifest.permission.ACCESS_FINE_LOCATION)
-                        == PackageManager.PERMISSION_GRANTED) {
-                    mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-                    mGoogleMap.setMyLocationEnabled(true);
+            if (locationService != null) {
+                if (userSettings.getBoolean("LowSpec", false)) {
+                    SharedPreferences.Editor editor = userSettings.edit();
+                    editor.putBoolean("LowSpec", false);
+                    editor.apply();
+                    locationService.adjustLocation();
+                } else {
+                    SharedPreferences.Editor editor = userSettings.edit();
+                    editor.putBoolean("LowSpec", true);
+                    editor.apply();
+                    locationService.adjustLocation();
                 }
-            } else {
-                assert mFusedLocationClient != null;
-                mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-                mGoogleMap.setMyLocationEnabled(true);
             }
-            Log.d("Lowspec", "onCheckedChanged: " + settings12.getBoolean("LowSpec", false));
+
         });
-
-
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         mapFrag = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         assert mapFrag != null;
@@ -206,8 +227,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         buttonScout = findViewById(R.id.buttonScout);
         buttonScout.setOnClickListener(v -> {
 
-            SharedPreferences settings13 = getSharedPreferences("Scouting", 0);
-            boolean isBusy = settings13.getBoolean("busy", false);
+            boolean isBusy = scoutSettings.getBoolean("busy", false);
 
             if (!isBusy) {
 
@@ -222,8 +242,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         return;
                     }
 
-                    SharedPreferences settings1 = getSharedPreferences("Scouting", 0);
-                    SharedPreferences.Editor editor = settings1.edit();
+
+                    SharedPreferences.Editor editor = scoutSettings.edit();
                     editor.putBoolean("busy", true);
                     editor.apply();
                     Intent intentls = new Intent(getApplicationContext(), CapturePointActivity.class);
@@ -232,10 +252,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     requireddatapointsAmount = mDatabaseHelper.getRequiredDatapoints(spinnerMethods.getSelectedItem().toString());
                     requiredCapturepointsAmount = mDatabaseHelper.getRequiredCapturepoints(spinnerMethods.getSelectedItem().toString());
                     ForceScan = mDatabaseHelper.getScan(spinnerMethods.getSelectedItem().toString());
-                    SharedPreferences settings2 = getSharedPreferences("Scouting", 0);
+
 
                     if (requireddatapointsAmount > 0 && requiredCapturepointsAmount > 0) {
-                        SharedPreferences.Editor editor2 = settings2.edit();
+                        SharedPreferences.Editor editor2 = scoutSettings.edit();
                         editor2.putInt("RequiredDataPoints", requireddatapointsAmount);
                         editor2.putInt("RequiredCapturePoints", requiredCapturepointsAmount);
                         editor2.putString("BlockName", spinnerblocks.getSelectedItem().toString());
@@ -251,17 +271,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         }
                     }
 
-                    intentls.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                     intentls.putExtra("ForceScan", ForceScan);
-                    Log.d("FORCESCAN", "mapsact: " + ForceScan);
                     startActivity(intentls);
                 });
                 builder.setNegativeButton("Cancel", (dialog, whichButton) -> {
                 });
 
                 spinnerMethods = update_layout.findViewById(R.id.spMethods);
-                spinnerProd =  update_layout.findViewById(R.id.spProd);
-                spinnerblocks =  update_layout.findViewById(R.id.spBlocks);
+                spinnerProd = update_layout.findViewById(R.id.spProd);
+                spinnerblocks = update_layout.findViewById(R.id.spBlocks);
                 List<String> methods = null;
                 try {
                     methods = mDatabaseHelper.getMethods();
@@ -288,7 +306,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                 adapterb.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
                 spinnerblocks.setAdapter(adapterb);
-                Log.d("Blockname", "onClick: " + Blockname);
+                Log.d("BlockName", "onClick: " + Blockname);
                 if (!TextUtils.isEmpty(Blockname)) {
                     for (int i = 0; i < adapterb.getCount(); i++) {
                         if (adapterb.getItem(i).contains(Blockname)) {
@@ -400,8 +418,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     break;
 
             }
-            SharedPreferences settings14 = getSharedPreferences("UserInfo", 0);
-            SharedPreferences.Editor editor = settings14.edit();
+
+            SharedPreferences.Editor editor = userSettings.edit();
             editor.putInt("mapstate", mapstate);
             editor.apply();
             Log.d("mapstate", "onPause: ");
@@ -454,8 +472,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .setTitle("Log Out")
                 .setMessage("Are you sure you wish to log out?")
                 .setPositiveButton(android.R.string.yes, (dialog, which) -> {
-                    SharedPreferences settings15 = getSharedPreferences("UserInfo", 0);
-                    SharedPreferences.Editor editor = settings15.edit();
+                    SharedPreferences.Editor editor = userSettings.edit();
                     editor.putString("email", "");
                     editor.putString("password", "");
                     editor.putString("DBID", "");
@@ -604,6 +621,18 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
+    private void startLocationService() {
+        Intent serviceIntent = new Intent(this, LocationService.class);
+        startService(serviceIntent);
+
+        bindService();
+    }
+
+    private void bindService() {
+        Intent serviceIntent = new Intent(this, LocationService.class);
+        bindService(serviceIntent, mapActivityViewModel.getServiceConnection(), Context.BIND_AUTO_CREATE);
+    }
+
     private void checkandrequestPermissions() {
         String[] PERMISSIONS = {
                 Manifest.permission.ACCESS_FINE_LOCATION,
@@ -675,10 +704,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onPause() {
         super.onPause();
         Log.d("msgs", "onPause: ");
-
-        if (mFusedLocationClient != null) {
-            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-        }
+//        if(userSettings.getBoolean("LowSpec",false)){
+//            stopService(locationServiceIntent);
+//        }
     }
 
     @Override
@@ -690,9 +718,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         } catch (Exception ep) {
             Log.d("exeptions", ep.toString());
         }
-        Log.d("msgs", "onStop: ");
-        if (mFusedLocationClient != null) {
-            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+        if (mapActivityViewModel.getBinder() != null) {
+            unbindService(mapActivityViewModel.getServiceConnection());
         }
     }
 
@@ -710,12 +737,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onResume() {
         super.onResume();
 
-        final SharedPreferences settings = getSharedPreferences("UserInfo", 0);
+//        if(userSettings.getBoolean("LowSpec",false)){
+//            stopService(locationServiceIntent);
+//        }
 
-        String Email = settings.getString("email", "");
-        String Password = settings.getString("password", "");
-        String DBID = settings.getString("DBID", "");
-        boolean Authorized = settings.getBoolean("Authorized", false);
+        String Email = userSettings.getString("email", "");
+        String Password = userSettings.getString("password", "");
+        String DBID = userSettings.getString("DBID", "");
+        boolean Authorized = userSettings.getBoolean("Authorized", false);
         Log.d("logindetails", "onResume: " + Email + " " + Password);
         if (Email.equals("") || Password.equals("") || DBID.equals("") || !Authorized) {
             setviewLogin();
@@ -724,20 +753,17 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    public final static String BROADCAST_ACTION = "BROADCAST_ACTION";
-    BroadcastReceiver br;
-
     private void setviewFunc() {
         changeCountText();
-        if (mFusedLocationClient != null) {
-            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (ContextCompat.checkSelfPermission(getApplicationContext(),
-                        Manifest.permission.ACCESS_FINE_LOCATION)
-                        == PackageManager.PERMISSION_GRANTED) {
-                    mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-                }
-            }
-        }
+//        if (mFusedLocationClient != null) {
+//            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                if (ContextCompat.checkSelfPermission(getApplicationContext(),
+//                        Manifest.permission.ACCESS_FINE_LOCATION)
+//                        == PackageManager.PERMISSION_GRANTED) {
+//                    mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+//                }
+//            }
+//        }
 
         br = new BroadcastReceiver() {
             public void onReceive(Context context, Intent intent) {
@@ -745,14 +771,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
             }
         };
+
         IntentFilter intFilt = new IntentFilter(BROADCAST_ACTION);
         registerReceiver(br, intFilt);
 
         brnw = new BroadcastReceiver() {
             public void onReceive(Context context, Intent intent) {
                 long unixTime = System.currentTimeMillis() / 1000L;
-                SharedPreferences settings = getSharedPreferences("Scouting", 0);
-                if (CheckForConectivity() && (unixTime - lastsynctime > 30) && !settings.getBoolean("busy", false)) {
+
+                if (CheckForConectivity() && (unixTime - lastsynctime > 30) && !scoutSettings.getBoolean("busy", false)) {
                     lastsynctime = unixTime;
                     Intent mIntent = new Intent(context, PostJobIntentService.class);
                     PostJobIntentService.enqueueWork(context, mIntent, 2);
@@ -764,8 +791,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         IntentFilter netwfilt = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
         registerReceiver(brnw, netwfilt);
 
-        final SharedPreferences settings = getSharedPreferences("UserInfo", 0);
-        long syncDate = settings.getLong("syncDate", 0);
+        long syncDate = userSettings.getLong("syncDate", 0);
         long unixTime = System.currentTimeMillis() / 1000L;
         Boolean conn = CheckForConectivity();
         if (conn) {
@@ -806,8 +832,139 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mGoogleMap = googleMap;
+        //Start Location Service
+        mapActivityViewModel = ViewModelProviders.of(this).get(MapActivityViewModel.class);
+        startLocationService();
+
+        mapActivityViewModel.getBinder().observe(this, myBinder -> {
+            if (myBinder != null) {
+                Log.d("onChanged", "onMapReady: connected to service");
+                locationService = myBinder.getService();
+                mapActivityViewModel.setIsUpdating(true);
+            } else {
+                Log.d("onChanged", "onMapReady: unbound to service");
+                locationService = null;
+            }
+        });
+
+        mapActivityViewModel.getIsUpdating().observe(this, aBoolean -> {
+            Handler handler = new Handler();
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    if (aBoolean) {
+                        if (mapActivityViewModel.getBinder().getValue() != null) {
+                            List<Location> locationList = locationService.getLocation();
+
+                            if (locationList != null && locationList.size() > 0) {
+                                if(locationList == mLastLocation)
+                                {
+                                    Log.d("sameLocation", "run: Same Location");
+                                }
+                                location = locationList.get(locationList.size() - 1);
+                                SharedPreferences.Editor editor2 = scoutSettings.edit();
+                                editor2.putString("location", location.getLatitude() + "," + location.getLongitude());
+                                editor2.apply();
+                                if (!hist) {
+                                    latLng = new LatLng(location.getLatitude(), location.getLongitude());
+                                    if(prevLatlng != null){
+                                        if(prevLatlng == latLng)
+                                            Log.d("TAG", "run: lat long Same");
+                                    }
+                                    if (mLastLocation != null) {
+
+                                        if (line != null) {
+                                            line.remove();
+                                        }
+                                        line = mGoogleMap.addPolyline(pl
+                                                .add(latLng)
+                                                .color(Color.argb(150, 255, 0, 0)));
+                                        line.setPattern(PATTERN_POLYLINE_DOTTED);
+                                        line.setJointType(JointType.ROUND);
+
+                                    }
+                                    if (mLastLocation == null) {
+                                        if (!userSettings.getBoolean("LowSpec", false)) {
+                                            mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 20), 4500, new GoogleMap.CancelableCallback() {
+                                                @Override
+                                                public void onFinish() {
+                                                    try {
+                                                        Date c = Calendar.getInstance().getTime();
+                                                        DateFormat df = SimpleDateFormat.getDateInstance();
+                                                        String formattedDate = df.format(c);
+                                                        String Coords = mDatabaseHelper.getLocationHistorytoday(formattedDate);
+                                                        String[] sp = Coords.split(";");
+                                                        for (String s :
+                                                                sp) {
+                                                            String[] qs = s.split(",");
+                                                            LatLng lt = new LatLng(Double.parseDouble(qs[0]), Double.parseDouble(qs[1]));
+                                                            plh.add(lt);
+                                                        }
+
+                                                        lineh = mGoogleMap.addPolyline(plh
+                                                                .color(Color.argb(150, 0, 255, 0)));
+                                                        lineh.setPattern(PATTERN_POLYLINE_DOTTED);
+                                                        lineh.setJointType(JointType.ROUND);
+
+                                                    } catch (Exception err) {
+                                                        Log.d("errors", "onFinish: " + err.toString());
+                                                    }
+
+                                                    imgbutTrack.performLongClick();
+                                                }
+
+                                                @Override
+                                                public void onCancel() {
+                                                }
+                                            });
+                                        } else {
+                                            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()),30)); //zoom
+                                            imgbutTrack.performLongClick();
+                                        }
+
+                                    } else if (track) {
+                                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, mGoogleMap.getCameraPosition().zoom));
+                                        for (int i = 0; i < polygons.size(); i++) {
+                                            if (PolyUtil.containsLocation(latLng, polygons.get(i).getPoints(), false)) {
+                                                if (polygons.get(i).getTag() != null) {
+                                                    Blockname = Objects.requireNonNull(polygons.get(i).getTag()).toString();
+
+                                                    polygons.get(i).setFillColor(Color.argb(150, 0, 0, 255));
+                                                }
+                                            } else {
+                                                polygons.get(i).setFillColor(Color.argb(80, 0, 255, 64));
+                                            }
+                                        }
+                                    }
+                                }
+                                if (mLastLocation == null || (location.getLongitude() != mLastLocation.getLongitude() && location.getLatitude() != mLastLocation.getLatitude())) {
+                                    saveLocationHistory();
+                                    Log.d("TAG", "run: History Saved");
+                                }
+                                mLastLocation = location;
+                                prevLatlng = latLng;
+                            }
+
+                        } else {
+                            Log.d("getUpdateing", "onMapReady: Something is wrong");
+                        }
+                        handler.postDelayed(this,1000);
+                    }
+                }
+            };
+
+            if(aBoolean){
+                handler.postDelayed(runnable,1000);
+            }
+
+        });
+
         mGoogleMap.clear();
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mGoogleMap.setMyLocationEnabled(true);
+
+        }
         Log.d("checks", "onMapReady: ");
         mGoogleMap.setOnPolygonClickListener(polygonClick -> {
             if (polygonClick.getTag() != null)
@@ -821,8 +978,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapUiSettings.setZoomControlsEnabled(false);
         mapUiSettings.setCompassEnabled(true);
         mapUiSettings.setMyLocationButtonEnabled(false);
-        final SharedPreferences settings = getSharedPreferences("UserInfo", 0);
-        int mapstte = settings.getInt("mapstate", 0);
+
+        int mapstte = userSettings.getInt("mapstate", 0);
         switch (mapstte) {
             default:
                 mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
@@ -837,44 +994,20 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mGoogleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
                 break;
         }
-        mLocationRequest = new LocationRequest();
-        if (!settings.getBoolean("LowSpec", false)) {
-            mLocationRequest.setInterval(3000);
-            mLocationRequest.setFastestInterval(2000);
-            mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        } else {
-            mLocationRequest.setInterval(10000);
-            mLocationRequest.setFastestInterval(9000);
-            mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
-        }
 
         LatLng Latlong = new LatLng(-29.454571, 24.708960);
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(Latlong, 5));
 
-        if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
-                mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-                mGoogleMap.setMyLocationEnabled(true);
-            }
-        } else {
-            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-            mGoogleMap.setMyLocationEnabled(true);
-        }
         mGoogleMap.clear();
         DrawBlocks();
         AddMarkers();
     }
 
-    List<Marker> markers = new ArrayList<>();
-
     private void AddMarkers() {
         try {
 
             Log.d("Mark", "onResume: ");
-            SharedPreferences settings2 = getSharedPreferences("Scouting", 0);
-            Cursor data = mDatabaseHelper.getCapMarks(settings2.getString("CapturePoint", ""));
+            Cursor data = mDatabaseHelper.getCapMarks(scoutSettings.getString("CapturePoint", ""));
             data.moveToFirst();
             ArrayList<LatLng> ltlngs = new ArrayList<>();
             for (int q = 0; q < data.getCount(); ++q) {
@@ -907,93 +1040,90 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         unregisterReceiver(br);
     }
 
-    LatLng latLng;
-    Location location;
-    LocationCallback mLocationCallback = new LocationCallback() {
-        @Override
-        public void onLocationResult(LocationResult locationResult) {
-            List<Location> locationList = locationResult.getLocations();
-            if (locationList.size() > 0) {
-                location = locationList.get(locationList.size() - 1);
-                SharedPreferences settings2 = getSharedPreferences("Scouting", 0);
-                SharedPreferences.Editor editor2 = settings2.edit();
-                editor2.putString("location", location.getLatitude() + "," + location.getLongitude());
-                editor2.apply();
-                if (!hist) {
-                    latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                    if (mLastLocation != null) {
-                        if (line != null) {
-                            line.remove();
-                        }
-                        line = mGoogleMap.addPolyline(pl
-                                .add(latLng)
-                                .color(Color.argb(150, 255, 0, 0)));
-                        line.setPattern(PATTERN_POLYLINE_DOTTED);
-                        line.setJointType(JointType.ROUND);
-
-                    }
-                    SharedPreferences settings = getSharedPreferences("UserInfo", 0);
-                    if (mLastLocation == null) {
-                        if (!settings.getBoolean("LowSpec", false)) {
-                            mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 20), 4500, new GoogleMap.CancelableCallback() {
-                                @Override
-                                public void onFinish() {
-                                    try {
-                                        Date c = Calendar.getInstance().getTime();
-                                        DateFormat df = SimpleDateFormat.getDateInstance();
-                                        String formattedDate = df.format(c);
-                                        String Coords = mDatabaseHelper.getLocationHistorytoday(formattedDate);
-                                        String[] sp = Coords.split(";");
-                                        for (String s :
-                                                sp) {
-                                            String[] qs = s.split(",");
-                                            LatLng lt = new LatLng(Double.parseDouble(qs[0]), Double.parseDouble(qs[1]));
-                                            plh.add(lt);
-                                        }
-
-                                        lineh = mGoogleMap.addPolyline(plh
-                                                .color(Color.argb(150, 0, 255, 0)));
-                                        lineh.setPattern(PATTERN_POLYLINE_DOTTED);
-                                        lineh.setJointType(JointType.ROUND);
-
-                                    } catch (Exception err) {
-                                        Log.d("errors", "onFinish: " + err.toString());
-                                    }
-
-                                    imgbutTrack.performLongClick();
-                                }
-
-                                @Override
-                                public void onCancel() {
-                                }
-                            });
-                        } else {
-                            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 16));
-                            imgbutTrack.performLongClick();
-                        }
-
-                    } else if (track) {
-                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, mGoogleMap.getCameraPosition().zoom));
-                        for (int i = 0; i < polygons.size(); i++) {
-                            if (PolyUtil.containsLocation(latLng, polygons.get(i).getPoints(), false)) {
-                                if (polygons.get(i).getTag() != null) {
-                                    Blockname = Objects.requireNonNull(polygons.get(i).getTag()).toString();
-
-                                    polygons.get(i).setFillColor(Color.argb(150, 0, 0, 255));
-                                }
-                            } else {
-                                polygons.get(i).setFillColor(Color.argb(80, 0, 255, 64));
-                            }
-                        }
-                    }
-                }
-                if (mLastLocation == null || (location.getLongitude() != mLastLocation.getLongitude() && location.getLatitude() != mLastLocation.getLatitude())) {
-                    saveLocationHistory();
-                }
-                mLastLocation = location;
-            }
-        }
-    };
+//    LocationCallback mLocationCallback = new LocationCallback() {
+//        @Override
+//        public void onLocationResult(LocationResult locationResult) {
+//            List<Location> locationList = locationResult.getLocations();
+//            if (locationList.size() > 0) {
+//                location = locationList.get(locationList.size() - 1);
+//                SharedPreferences.Editor editor2 = scoutSettings.edit();
+//                editor2.putString("location", location.getLatitude() + "," + location.getLongitude());
+//                editor2.apply();
+//                if (!hist) {
+//                    latLng = new LatLng(location.getLatitude(), location.getLongitude());
+//                    if (mLastLocation != null) {
+//                        if (line != null) {
+//                            line.remove();
+//                        }
+//                        line = mGoogleMap.addPolyline(pl
+//                                .add(latLng)
+//                                .color(Color.argb(150, 255, 0, 0)));
+//                        line.setPattern(PATTERN_POLYLINE_DOTTED);
+//                        line.setJointType(JointType.ROUND);
+//
+//                    }
+//
+//                    if (mLastLocation == null) {
+//                        if (!userSettings.getBoolean("LowSpec", false)) {
+//                            mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 20), 4500, new GoogleMap.CancelableCallback() {
+//                                @Override
+//                                public void onFinish() {
+//                                    try {
+//                                        Date c = Calendar.getInstance().getTime();
+//                                        DateFormat df = SimpleDateFormat.getDateInstance();
+//                                        String formattedDate = df.format(c);
+//                                        String Coords = mDatabaseHelper.getLocationHistorytoday(formattedDate);
+//                                        String[] sp = Coords.split(";");
+//                                        for (String s :
+//                                                sp) {
+//                                            String[] qs = s.split(",");
+//                                            LatLng lt = new LatLng(Double.parseDouble(qs[0]), Double.parseDouble(qs[1]));
+//                                            plh.add(lt);
+//                                        }
+//
+//                                        lineh = mGoogleMap.addPolyline(plh
+//                                                .color(Color.argb(150, 0, 255, 0)));
+//                                        lineh.setPattern(PATTERN_POLYLINE_DOTTED);
+//                                        lineh.setJointType(JointType.ROUND);
+//
+//                                    } catch (Exception err) {
+//                                        Log.d("errors", "onFinish: " + err.toString());
+//                                    }
+//
+//                                    imgbutTrack.performLongClick();
+//                                }
+//
+//                                @Override
+//                                public void onCancel() {
+//                                }
+//                            });
+//                        } else {
+//                            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 16));
+//                            imgbutTrack.performLongClick();
+//                        }
+//
+//                    } else if (track) {
+//                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, mGoogleMap.getCameraPosition().zoom));
+//                        for (int i = 0; i < polygons.size(); i++) {
+//                            if (PolyUtil.containsLocation(latLng, polygons.get(i).getPoints(), false)) {
+//                                if (polygons.get(i).getTag() != null) {
+//                                    Blockname = Objects.requireNonNull(polygons.get(i).getTag()).toString();
+//
+//                                    polygons.get(i).setFillColor(Color.argb(150, 0, 0, 255));
+//                                }
+//                            } else {
+//                                polygons.get(i).setFillColor(Color.argb(80, 0, 255, 64));
+//                            }
+//                        }
+//                    }
+//                }
+//                if (mLastLocation == null || (location.getLongitude() != mLastLocation.getLongitude() && location.getLatitude() != mLastLocation.getLatitude())) {
+//                    saveLocationHistory();
+//                }
+//                mLastLocation = location;
+//            }
+//        }
+//    };
 
     private void saveLocationHistory() {
         Date c = Calendar.getInstance().getTime();
@@ -1020,10 +1150,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-    private static final PatternItem DOT = new Dot();
-    private static final PatternItem GAP = new Gap(3);
-    private static final List<PatternItem> PATTERN_POLYLINE_DOTTED = Arrays.asList(GAP, DOT);
-
     @SuppressLint("MissingPermission")
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, int[] grantResults) {
@@ -1038,7 +1164,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         && perms.get(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                         && perms.get(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
                         && perms.get(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                    mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+//                    mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
                     mGoogleMap.setMyLocationEnabled(true);
                 } else {
                     if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA) || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION) || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
@@ -1070,29 +1196,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .show();
     }
 
-    Retrofit retrofit;
-    AppnosticAPI appnosticAPI;
-    Call<List<Block>> blockCall;
-    Call<List<ScoutingMethods>> scoutCall;
-    List<Block> blocks;
-    List<Block> blocksFinal = new ArrayList<>();
-    List<ScoutingMethods> methods;
-    List<ScoutingMethods> methodsFinal = new ArrayList<>();
-    Call<List<ProductionUnit>> prodCall;
-    List<ProductionUnit> productionUnits;
-    List<ProductionUnit> productionUnitsFinal = new ArrayList<>();
-    long skipBlock = 0;
-    long skipMethod = 0;
-    long skipPU = 0;
-
     public void ApiBlocks() {
-        final SharedPreferences settings = getSharedPreferences("UserInfo", 0);
+
         retrofit = new Retrofit.Builder()
-                .baseUrl("https://appnostic.dbflex.net/secure/api/v2/" + settings.getString("DBID", "") + "/")
+                .baseUrl("https://appnostic.dbflex.net/secure/api/v2/" + userSettings.getString("DBID", "") + "/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         appnosticAPI = retrofit.create(AppnosticAPI.class);
-        blockCall = appnosticAPI.getBlocks(String.valueOf(skipBlock), Credentials.basic(settings.getString("email", ""), settings.getString("password", "")));
+        blockCall = appnosticAPI.getBlocks(String.valueOf(skipBlock), Credentials.basic(userSettings.getString("email", ""), userSettings.getString("password", "")));
         blockCall.enqueue(new Callback<List<Block>>() {
             @Override
             public void onResponse(@NonNull Call<List<Block>> blockcall, Response<List<Block>> response) {
@@ -1126,7 +1237,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         long unixTime = System.currentTimeMillis() / 1000L;
-        SharedPreferences.Editor editor = settings.edit();
+        SharedPreferences.Editor editor = userSettings.edit();
         editor.putLong("syncDate", unixTime);
 
         editor.apply();
@@ -1134,14 +1245,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void ApiProductionUnits() {
 
-        final SharedPreferences settings = getSharedPreferences("UserInfo", 0);
+
         retrofit = new Retrofit.Builder()
-                .baseUrl("https://appnostic.dbflex.net/secure/api/v2/" + settings.getString("DBID", "") + "/")
+                .baseUrl("https://appnostic.dbflex.net/secure/api/v2/" + userSettings.getString("DBID", "") + "/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         appnosticAPI = retrofit.create(AppnosticAPI.class);
 
-        prodCall = appnosticAPI.getProductionUnits(String.valueOf(skipPU), Credentials.basic(settings.getString("email", ""), settings.getString("password", "")));
+        prodCall = appnosticAPI.getProductionUnits(String.valueOf(skipPU), Credentials.basic(userSettings.getString("email", ""), userSettings.getString("password", "")));
         prodCall.enqueue(new Callback<List<ProductionUnit>>() {
             @Override
             public void onResponse(Call<List<ProductionUnit>> prodCall, Response<List<ProductionUnit>> response) {
@@ -1171,7 +1282,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         long unixTime = System.currentTimeMillis() / 1000L;
-        SharedPreferences.Editor editor = settings.edit();
+        SharedPreferences.Editor editor = userSettings.edit();
         editor.putLong("syncDate", unixTime);
 
         editor.apply();
@@ -1179,14 +1290,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     public void ApiMethods() {
 
-        final SharedPreferences settings = getSharedPreferences("UserInfo", 0);
+
         retrofit = new Retrofit.Builder()
-                .baseUrl("https://appnostic.dbflex.net/secure/api/v2/" + settings.getString("DBID", "") + "/")
+                .baseUrl("https://appnostic.dbflex.net/secure/api/v2/" + userSettings.getString("DBID", "") + "/")
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
         appnosticAPI = retrofit.create(AppnosticAPI.class);
 
-        scoutCall = appnosticAPI.getScoutingMethods(String.valueOf(skipMethod), Credentials.basic(settings.getString("email", ""), settings.getString("password", "")));
+        scoutCall = appnosticAPI.getScoutingMethods(String.valueOf(skipMethod), Credentials.basic(userSettings.getString("email", ""), userSettings.getString("password", "")));
         scoutCall.enqueue(new Callback<List<ScoutingMethods>>() {
             @Override
             public void onResponse(Call<List<ScoutingMethods>> scoutcall, Response<List<ScoutingMethods>> response) {
@@ -1216,14 +1327,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
 
         long unixTime = System.currentTimeMillis() / 1000L;
-        SharedPreferences.Editor editor = settings.edit();
+        SharedPreferences.Editor editor = userSettings.edit();
         editor.putLong("syncDate", unixTime);
 
         editor.apply();
     }
-
-    Polygon polygon1;
-    LatLng lastpoly;
 
     public void DrawBlocks() {
 
@@ -1315,13 +1423,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     //change to Retrofit Request on AppnosticAPI
     public void SyncData() {
-        SharedPreferences settings = getSharedPreferences("UserInfo", 0);
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .build();
 
         Request request = new Request.Builder()
-                .url("https://appnostic.dbflex.net/secure/api/v2/" + settings.getString("DBID", "") + "/Scouting%20PDDD%20setup/Default%20View/select.json")
-                .header("Authorization", Credentials.basic(settings.getString("email", ""), settings.getString("password", "")))
+                .url("https://appnostic.dbflex.net/secure/api/v2/" + userSettings.getString("DBID", "") + "/Scouting%20PDDD%20setup/Default%20View/select.json")
+                .header("Authorization", Credentials.basic(userSettings.getString("email", ""), userSettings.getString("password", "")))
                 .method("GET", null)
                 .build();
         client.newCall(request).enqueue(new okhttp3.Callback() {
@@ -1363,7 +1470,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
             }
         });
-
     }
 }
 
