@@ -3,7 +3,12 @@ package com.example.scoutingplatform;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -38,7 +43,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.Observer;
@@ -106,9 +113,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     GoogleMap mGoogleMap;
     SupportMapFragment mapFrag;
-    //    LocationRequest mLocationRequest;
     Location mLastLocation;
-    //    FusedLocationProviderClient mFusedLocationClient;
     DatabaseHelper mDatabaseHelper;
     int mapstate;
     FrameLayout sbs;
@@ -695,10 +700,26 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onPause() {
         super.onPause();
         Log.d("msgs", "onPause: ");
+        if (mapActivityViewModel.getBinder() != null) {
+            try {
+                unbindService(mapActivityViewModel.getServiceConnection());
+            } catch (IllegalArgumentException err) {
+                return;
+            }
+        }
+    }
+
+    private void createNotificationChannel() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel notificationChannel = new NotificationChannel("channel", "ForegroundNotification", NotificationManager.IMPORTANCE_LOW);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(notificationChannel);
+        }
     }
 
     @Override
@@ -863,7 +884,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                                 .add(latLng)
                                                 .color(Color.argb(150, 255, 0, 0)));
                                         line.setPattern(PATTERN_POLYLINE_DOTTED);
-                                        line.setJointType(JointType.ROUND);
+                                        line.setJointType(JointType.BEVEL);
 
                                     }
                                     if (mLastLocation == null) {

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ScoutingPlatform</string>
+    <string name="app_name">FarmTrace IPM</string>
     <string name="title_activity_maps">FarmTrace IPM</string>
     <string name="title_activity_maps_history">Map</string>
     <string name="title_activity_login">Sign in</string>

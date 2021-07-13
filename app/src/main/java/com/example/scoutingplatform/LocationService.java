@@ -6,6 +6,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -19,7 +20,9 @@ import android.os.Looper;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
+import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.HasDefaultViewModelProviderFactory;
 
@@ -49,20 +52,20 @@ public class LocationService extends Service {
     //Settings
     SharedPreferences userSettings;
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-//        createNotificationChannel();
-//
-//        Intent mIntent = new Intent(this, MapsActivity.class);
-//        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, mIntent, 0);
-//
-//        Notification notification = new NotificationCompat.Builder(this, "channel")
-//                .setContentTitle("FarmTrace Scouting")
-//                .setContentText("Scouting")
-//                .setSmallIcon(R.drawable.pin)
-//                .setContentIntent(pendingIntent).build();
-//
-//        startForeground(1, notification);
+        if(!lowSpec){
+            createNotificationChannel();
+            Intent mIntent = new Intent(this, MapsActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, mIntent, 0);
+            Notification notification = new NotificationCompat.Builder(this, "channel")
+                    .setContentTitle("Scouting")
+                    .setSmallIcon(R.drawable.logo)
+                    .setContentIntent(pendingIntent)
+                    .build();
+            startForeground(1, notification);
+        }
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -99,6 +102,14 @@ public class LocationService extends Service {
         }
     }
 
+    private void createNotificationChannel() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel notificationChannel = new NotificationChannel("channel", "ForegroundNotification", NotificationManager.IMPORTANCE_LOW);
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(notificationChannel);
+        }
+    }
+
     public class MyBinder extends Binder {
         LocationService getService() {
             return LocationService.this;
@@ -113,17 +124,28 @@ public class LocationService extends Service {
                 return;
             }
             locationList = locationResult.getLocations();
-            Log.d("locationService", "onLocationResult: "+ locationList);
         }
     };
 
-//    //Notification Channel
-//    private void createNotificationChannel() {
-//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-//            NotificationChannel notificationChannel = new NotificationChannel("channel", "ForegroundNotification", NotificationManager.IMPORTANCE_DEFAULT);
-//            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-//            notificationManager.createNotificationChannel(notificationChannel);
+//    @Override
+//    public ComponentName startForegroundService(Intent service) {
+//        userSettings = getSharedPreferences("UserInfo", 0);
+//        lowSpec = userSettings.getBoolean("LowSpec", false);
+//        if (!lowSpec) {
+//            createNotificationChannel();
+//
+//            Intent mIntent = new Intent(this, MapsActivity.class);
+//            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, mIntent, 0);
+//
+//            Notification notification = new NotificationCompat.Builder(this, "channel")
+//                    .setContentTitle("Scouting")
+//                    .setSmallIcon(R.drawable.logo)
+//                    .setContentIntent(pendingIntent)
+//                    .build();
+//
+//            startForeground(1, notification);
 //        }
+//        return super.startForegroundService(service);
 //    }
 
     @Override
