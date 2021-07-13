@@ -127,27 +127,6 @@ public class LocationService extends Service {
         }
     };
 
-//    @Override
-//    public ComponentName startForegroundService(Intent service) {
-//        userSettings = getSharedPreferences("UserInfo", 0);
-//        lowSpec = userSettings.getBoolean("LowSpec", false);
-//        if (!lowSpec) {
-//            createNotificationChannel();
-//
-//            Intent mIntent = new Intent(this, MapsActivity.class);
-//            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, mIntent, 0);
-//
-//            Notification notification = new NotificationCompat.Builder(this, "channel")
-//                    .setContentTitle("Scouting")
-//                    .setSmallIcon(R.drawable.logo)
-//                    .setContentIntent(pendingIntent)
-//                    .build();
-//
-//            startForeground(1, notification);
-//        }
-//        return super.startForegroundService(service);
-//    }
-
     @Override
     public void onTaskRemoved(Intent rootIntent) {
         super.onTaskRemoved(rootIntent);
