@@ -202,6 +202,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         spinnerhist = findViewById(R.id.spinnerHistory);
         swtLowSpec = findViewById(R.id.swtLowSpec);
         btnLogOut = findViewById(R.id.btnLogOut);
+        imgbutTrack = findViewById(R.id.imgbutTrack);
+
         swtLowSpec.setChecked(userSettings.getBoolean("LowSpec", false));
 
         swtLowSpec.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -363,7 +365,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
-        imgbutTrack = findViewById(R.id.imgbutTrack);
+        //OnClick For track Button
         imgbutTrack.setOnClickListener(v -> {
             if (!locked)
                 if (track) {
@@ -378,7 +380,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 }
         });
 
-
+        //Long Press for track Button
         imgbutTrack.setOnLongClickListener(v -> {
             if (!locked) {
                 mGoogleMap.getUiSettings().setScrollGesturesEnabled(false);
@@ -422,7 +424,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             SharedPreferences.Editor editor = userSettings.edit();
             editor.putInt("mapstate", mapstate);
             editor.apply();
-            Log.d("mapstate", "onPause: ");
         });
 
         Button btnphoto = findViewById(R.id.buttonphoto);
@@ -704,14 +705,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onPause() {
         super.onPause();
         Log.d("msgs", "onPause: ");
-//        if(userSettings.getBoolean("LowSpec",false)){
-//            stopService(locationServiceIntent);
-//        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        Log.d("STOP", "onStop: ");
+
         try {
             unregisterReceiver(br);
             unregisterReceiver(brnw);
@@ -719,7 +719,11 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Log.d("exeptions", ep.toString());
         }
         if (mapActivityViewModel.getBinder() != null) {
-            unbindService(mapActivityViewModel.getServiceConnection());
+            try{
+                unbindService(mapActivityViewModel.getServiceConnection());
+            }catch(IllegalArgumentException err){
+                return;
+            }
         }
     }
 
@@ -923,7 +927,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                         }
 
                                     } else if (track) {
-                                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, mGoogleMap.getCameraPosition().zoom));
+                                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 30));
                                         for (int i = 0; i < polygons.size(); i++) {
                                             if (PolyUtil.containsLocation(latLng, polygons.get(i).getPoints(), false)) {
                                                 if (polygons.get(i).getTag() != null) {
@@ -959,6 +963,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         });
 
+        mGoogleMap = googleMap;
         mGoogleMap.clear();
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {

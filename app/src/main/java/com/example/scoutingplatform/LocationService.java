@@ -89,12 +89,12 @@ public class LocationService extends Service {
         if (!lowSpec) {
             mLocationRequest = new LocationRequest();
             mLocationRequest.setInterval(3000);
-            mLocationRequest.setFastestInterval(2000);
+            mLocationRequest.setFastestInterval(1);
             mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         } else {
             mLocationRequest = new LocationRequest();
             mLocationRequest.setInterval(15000);
-            mLocationRequest.setFastestInterval(14000);
+            mLocationRequest.setFastestInterval(10000);
             mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         }
     }
@@ -113,6 +113,7 @@ public class LocationService extends Service {
                 return;
             }
             locationList = locationResult.getLocations();
+            Log.d("locationService", "onLocationResult: "+ locationList);
         }
     };
 
