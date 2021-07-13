@@ -117,14 +117,14 @@ public class LocationService extends Service {
         }
     };
 
-    //Notification Channel
-    private void createNotificationChannel() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            NotificationChannel notificationChannel = new NotificationChannel("channel", "ForegroundNotification", NotificationManager.IMPORTANCE_DEFAULT);
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(notificationChannel);
-        }
-    }
+//    //Notification Channel
+//    private void createNotificationChannel() {
+//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+//            NotificationChannel notificationChannel = new NotificationChannel("channel", "ForegroundNotification", NotificationManager.IMPORTANCE_DEFAULT);
+//            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+//            notificationManager.createNotificationChannel(notificationChannel);
+//        }
+//    }
 
     @Override
     public void onTaskRemoved(Intent rootIntent) {

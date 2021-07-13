@@ -203,6 +203,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         swtLowSpec = findViewById(R.id.swtLowSpec);
         btnLogOut = findViewById(R.id.btnLogOut);
         imgbutTrack = findViewById(R.id.imgbutTrack);
+        textViewpddtest = findViewById(R.id.textViewpddtest);
+        btnRefresh = findViewById(R.id.btnRefresh);
 
         swtLowSpec.setChecked(userSettings.getBoolean("LowSpec", false));
 
@@ -220,7 +222,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     locationService.adjustLocation();
                 }
             }
-
         });
 
         mapFrag = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
@@ -244,17 +245,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         return;
                     }
 
-
                     SharedPreferences.Editor editor = scoutSettings.edit();
                     editor.putBoolean("busy", true);
                     editor.apply();
                     Intent intentls = new Intent(getApplicationContext(), CapturePointActivity.class);
 
-
                     requireddatapointsAmount = mDatabaseHelper.getRequiredDatapoints(spinnerMethods.getSelectedItem().toString());
                     requiredCapturepointsAmount = mDatabaseHelper.getRequiredCapturepoints(spinnerMethods.getSelectedItem().toString());
                     ForceScan = mDatabaseHelper.getScan(spinnerMethods.getSelectedItem().toString());
-
 
                     if (requireddatapointsAmount > 0 && requiredCapturepointsAmount > 0) {
                         SharedPreferences.Editor editor2 = scoutSettings.edit();
@@ -398,7 +396,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             return false;
         });
 
-
+        //Layers Button on Click
         ImageButton btn1 = findViewById(R.id.imgbutLayers);
         btn1.setOnClickListener(v -> {
             switch (mGoogleMap.getMapType()) {
@@ -547,7 +545,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             });
         });
 
-
         sbs = findViewById(R.id.standardBottomSheet);
         bottomSheetBehavior = BottomSheetBehavior.from(sbs);
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -594,10 +591,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     break;
             }
         });
-        textViewpddtest = findViewById(R.id.textViewpddtest);
 
-
-        btnRefresh = findViewById(R.id.btnRefresh);
         btnRefresh.setOnClickListener(v -> {
             btnRefresh.setEnabled(false);
             Boolean conn = CheckForConectivity();
@@ -719,9 +713,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Log.d("exeptions", ep.toString());
         }
         if (mapActivityViewModel.getBinder() != null) {
-            try{
+            try {
                 unbindService(mapActivityViewModel.getServiceConnection());
-            }catch(IllegalArgumentException err){
+            } catch (IllegalArgumentException err) {
                 return;
             }
         }
@@ -741,10 +735,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onResume() {
         super.onResume();
 
-//        if(userSettings.getBoolean("LowSpec",false)){
-//            stopService(locationServiceIntent);
-//        }
-
         String Email = userSettings.getString("email", "");
         String Password = userSettings.getString("password", "");
         String DBID = userSettings.getString("DBID", "");
@@ -759,20 +749,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     private void setviewFunc() {
         changeCountText();
-//        if (mFusedLocationClient != null) {
-//            if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                if (ContextCompat.checkSelfPermission(getApplicationContext(),
-//                        Manifest.permission.ACCESS_FINE_LOCATION)
-//                        == PackageManager.PERMISSION_GRANTED) {
-//                    mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-//                }
-//            }
-//        }
 
         br = new BroadcastReceiver() {
             public void onReceive(Context context, Intent intent) {
                 changeCountText();
-
             }
         };
 
@@ -787,10 +767,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     lastsynctime = unixTime;
                     Intent mIntent = new Intent(context, PostJobIntentService.class);
                     PostJobIntentService.enqueueWork(context, mIntent, 2);
-
                 }
             }
         };
+
         brnw.onReceive(getApplicationContext(), this.getIntent());
         IntentFilter netwfilt = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
         registerReceiver(brnw, netwfilt);
@@ -861,8 +841,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                             List<Location> locationList = locationService.getLocation();
 
                             if (locationList != null && locationList.size() > 0) {
-                                if(locationList == mLastLocation)
-                                {
+                                if (locationList == mLastLocation) {
                                     Log.d("sameLocation", "run: Same Location");
                                 }
                                 location = locationList.get(locationList.size() - 1);
@@ -871,8 +850,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 editor2.apply();
                                 if (!hist) {
                                     latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                                    if(prevLatlng != null){
-                                        if(prevLatlng == latLng)
+                                    if (prevLatlng != null) {
+                                        if (prevLatlng == latLng)
                                             Log.d("TAG", "run: lat long Same");
                                     }
                                     if (mLastLocation != null) {
@@ -922,7 +901,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                                 }
                                             });
                                         } else {
-                                            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()),30)); //zoom
+                                            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 30)); //zoom
                                             imgbutTrack.performLongClick();
                                         }
 
@@ -952,13 +931,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         } else {
                             Log.d("getUpdateing", "onMapReady: Something is wrong");
                         }
-                        handler.postDelayed(this,1000);
+                        handler.postDelayed(this, 1000);
                     }
                 }
             };
 
-            if(aBoolean){
-                handler.postDelayed(runnable,1000);
+            if (aBoolean) {
+                handler.postDelayed(runnable, 1000);
             }
 
         });
@@ -1044,91 +1023,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         unregisterReceiver(brnw);
         unregisterReceiver(br);
     }
-
-//    LocationCallback mLocationCallback = new LocationCallback() {
-//        @Override
-//        public void onLocationResult(LocationResult locationResult) {
-//            List<Location> locationList = locationResult.getLocations();
-//            if (locationList.size() > 0) {
-//                location = locationList.get(locationList.size() - 1);
-//                SharedPreferences.Editor editor2 = scoutSettings.edit();
-//                editor2.putString("location", location.getLatitude() + "," + location.getLongitude());
-//                editor2.apply();
-//                if (!hist) {
-//                    latLng = new LatLng(location.getLatitude(), location.getLongitude());
-//                    if (mLastLocation != null) {
-//                        if (line != null) {
-//                            line.remove();
-//                        }
-//                        line = mGoogleMap.addPolyline(pl
-//                                .add(latLng)
-//                                .color(Color.argb(150, 255, 0, 0)));
-//                        line.setPattern(PATTERN_POLYLINE_DOTTED);
-//                        line.setJointType(JointType.ROUND);
-//
-//                    }
-//
-//                    if (mLastLocation == null) {
-//                        if (!userSettings.getBoolean("LowSpec", false)) {
-//                            mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 20), 4500, new GoogleMap.CancelableCallback() {
-//                                @Override
-//                                public void onFinish() {
-//                                    try {
-//                                        Date c = Calendar.getInstance().getTime();
-//                                        DateFormat df = SimpleDateFormat.getDateInstance();
-//                                        String formattedDate = df.format(c);
-//                                        String Coords = mDatabaseHelper.getLocationHistorytoday(formattedDate);
-//                                        String[] sp = Coords.split(";");
-//                                        for (String s :
-//                                                sp) {
-//                                            String[] qs = s.split(",");
-//                                            LatLng lt = new LatLng(Double.parseDouble(qs[0]), Double.parseDouble(qs[1]));
-//                                            plh.add(lt);
-//                                        }
-//
-//                                        lineh = mGoogleMap.addPolyline(plh
-//                                                .color(Color.argb(150, 0, 255, 0)));
-//                                        lineh.setPattern(PATTERN_POLYLINE_DOTTED);
-//                                        lineh.setJointType(JointType.ROUND);
-//
-//                                    } catch (Exception err) {
-//                                        Log.d("errors", "onFinish: " + err.toString());
-//                                    }
-//
-//                                    imgbutTrack.performLongClick();
-//                                }
-//
-//                                @Override
-//                                public void onCancel() {
-//                                }
-//                            });
-//                        } else {
-//                            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 16));
-//                            imgbutTrack.performLongClick();
-//                        }
-//
-//                    } else if (track) {
-//                        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, mGoogleMap.getCameraPosition().zoom));
-//                        for (int i = 0; i < polygons.size(); i++) {
-//                            if (PolyUtil.containsLocation(latLng, polygons.get(i).getPoints(), false)) {
-//                                if (polygons.get(i).getTag() != null) {
-//                                    Blockname = Objects.requireNonNull(polygons.get(i).getTag()).toString();
-//
-//                                    polygons.get(i).setFillColor(Color.argb(150, 0, 0, 255));
-//                                }
-//                            } else {
-//                                polygons.get(i).setFillColor(Color.argb(80, 0, 255, 64));
-//                            }
-//                        }
-//                    }
-//                }
-//                if (mLastLocation == null || (location.getLongitude() != mLastLocation.getLongitude() && location.getLatitude() != mLastLocation.getLatitude())) {
-//                    saveLocationHistory();
-//                }
-//                mLastLocation = location;
-//            }
-//        }
-//    };
 
     private void saveLocationHistory() {
         Date c = Calendar.getInstance().getTime();
@@ -1294,8 +1188,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     public void ApiMethods() {
-
-
         retrofit = new Retrofit.Builder()
                 .baseUrl("https://appnostic.dbflex.net/secure/api/v2/" + userSettings.getString("DBID", "") + "/")
                 .addConverterFactory(GsonConverterFactory.create())
