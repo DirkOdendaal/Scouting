@@ -51,15 +51,12 @@ public class DataPointActivity extends AppCompatActivity {
         txtCount.setText(mAdapter.getItemCount() + "/" + req);
 
         selectall = findViewById(R.id.cbSelectAll);
-        selectall.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(selectall.isChecked()){
-                    mAdapter.selectAll();
-                }
-                else {
-                    mAdapter.unselectall();
-                }
+        selectall.setOnClickListener(v -> {
+            if(selectall.isChecked()){
+                mAdapter.selectAll();
+            }
+            else {
+                mAdapter.unselectall();
             }
         });
 
@@ -73,54 +70,40 @@ public class DataPointActivity extends AppCompatActivity {
         };
 
         btnAdd = findViewById(R.id.btnAdd);
-        btnAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intentls = new Intent(getApplicationContext(), CaptureActivity.class);
-                Log.d("CPcheck", "dpact: " + getIntent().getStringExtra("CapturePoint"));
-                intentls.putExtra("CapturePoint", getIntent().getStringExtra("CapturePoint"));
-                intentls.putExtra("Barcode", getIntent().getStringExtra("Barcode"));
-                intentls.putExtra("DataPoint", getIntent().getStringExtra("DataPoint"));
-                startActivity(intentls);
-            }
+        btnAdd.setOnClickListener(v -> {
+            Intent intentls = new Intent(getApplicationContext(), CaptureActivity.class);
+            Log.d("CPcheck", "dpact: " + getIntent().getStringExtra("CapturePoint"));
+            intentls.putExtra("CapturePoint", getIntent().getStringExtra("CapturePoint"));
+            intentls.putExtra("Barcode", getIntent().getStringExtra("Barcode"));
+            intentls.putExtra("DataPoint", getIntent().getStringExtra("DataPoint"));
+            startActivity(intentls);
         });
 
         btnBackDPA = findViewById(R.id.btnBackDPA);
-        btnBackDPA.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-               onBackPressed();
-            }
-        });
+        btnBackDPA.setOnClickListener(v -> onBackPressed());
 
         btnDeleteEntries = findViewById(R.id.btnDeleteEntries);
-        btnDeleteEntries.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        btnDeleteEntries.setOnClickListener(v -> {
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(DataPointActivity.this);
-                builder.setTitle("Please confirm.");
-                builder.setMessage("Are you sure you want to delete these records?");
-                builder.setCancelable(true);
+            AlertDialog.Builder builder = new AlertDialog.Builder(DataPointActivity.this);
+            builder.setTitle("Please confirm.");
+            builder.setMessage("Are you sure you want to delete these records?");
+            builder.setCancelable(true);
 
-                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        mAdapter.DeleteEntry();
-                        mAdapter.swapCursor(getAllItems());
-                        txtCount.setText("Count: " +mAdapter.getItemCount() );
-                        selectall.setChecked(false);
-                    }
-                });
+            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    mAdapter.DeleteEntry();
+                    mAdapter.swapCursor(getAllItems());
+                    txtCount.setText("Count: " +mAdapter.getItemCount() );
+                    selectall.setChecked(false);
+                }
+            });
 
-                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                    }
-                });
-                AlertDialog dialog = builder.create();
-                dialog.show();
-            }
+            builder.setNegativeButton("No", (dialogInterface, i) -> {
+            });
+            AlertDialog dialog = builder.create();
+            dialog.show();
         });
     }
 

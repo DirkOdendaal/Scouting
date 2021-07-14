@@ -112,6 +112,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         //Replace with database transactions and not one by one creations
         try {
+            db.beginTransaction();
             String createCapTable = "CREATE TABLE IF NOT EXISTS " + CAP_TABLE_NAME + " (ID INTEGER PRIMARY KEY AUTOINCREMENT, " +
                     CAP_COL1 + " TEXT, " +
                     CAP_COL2 + " TEXT, " +
@@ -179,9 +180,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL(createmethodstable);
             db.execSQL(createlogtable);
             db.execSQL(createPhotoTable);
+            db.setTransactionSuccessful();
+            db.endTransaction();
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
     }
 
     //Drop If app gets updated
@@ -205,7 +209,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     //Insert Blocks
     public void addPUData(List<ProductionUnit> productionUnits) {
-        //This is using Transactions to insert data.
         try {
             SQLiteDatabase db = this.getWritableDatabase();
             String sql = "INSERT INTO " + PRODUCTION_UNIT_TABLE_NAME + " (" +
@@ -213,7 +216,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     PUCOL2 + ") " +
                     "VALUES (?, ?)";
             db.beginTransaction();
-            Log.d(TAG, "addPUData: " + productionUnits);
             SQLiteStatement stmt = db.compileStatement(sql);
             for (int i = 0; i < productionUnits.size(); i++) {
                 String name = productionUnits.get(i).getPuName();
@@ -234,7 +236,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     //Insert Blocks
     public void addBlockData(List<Block> blocks) {
-        //This is using Transactions to insert data.
         try {
             SQLiteDatabase db = this.getWritableDatabase();
             String sql = "INSERT INTO " + BLOCK_TABLE_NAME + " (" +
@@ -272,7 +273,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     //Insert Scouting Methods
     public void addScoutingMethods(List<ScoutingMethods> scoutingMethods) {
-        //This is using Transactions to insert data.
         try {
             SQLiteDatabase db = this.getWritableDatabase();
             String sql = "INSERT INTO " + METHODS_TABLE_NAME + " (" + MCOL1 + "," + MCOL2 + "," + MCOL3 + "," + MCOL4 + ") VALUES (?, ?, ?, ?)";
@@ -297,7 +297,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     //Add logs
     public void addLog(List<ApiResp> resps) {
-        //This is using Transactions to insert data.
         try {
             SQLiteDatabase db = this.getWritableDatabase();
             String sql = "INSERT INTO " + LOG_TABLE_NAME + " (" +

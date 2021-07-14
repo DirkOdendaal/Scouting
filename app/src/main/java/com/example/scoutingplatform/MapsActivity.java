@@ -363,7 +363,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 } else {
                     track = true;
                     imgbutTrack.setImageDrawable(getDrawable(R.drawable.recenteractive));
-
                 }
         });
 
@@ -502,10 +501,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 histDates.add(Hdata.getString(2));
                 Hdata.moveToNext();
             }
+
             Hdata.close();
             Adapterhist = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_spinner_dropdown_item, histDates);
             Adapterhist.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinnerhist.setAdapter(Adapterhist);
+
             spinnerhist.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                     plhis = new PolylineOptions();
@@ -525,7 +526,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(lastlt, mGoogleMap.getCameraPosition().zoom));
                     linehis = mGoogleMap.addPolyline(plhis
                             .color(Color.argb(255, 0, 0, 255)));
-                    linehis.setPattern(PATTERN_POLYLINE_DOTTED);
+//                    linehis.setPattern(PATTERN_POLYLINE_DOTTED);
+                    linehis.setWidth(10);
                     linehis.setJointType(JointType.ROUND);
                 }
 
@@ -652,13 +654,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             buttonScout.setVisibility(View.VISIBLE);
             spinnerhist.setVisibility(View.GONE);
             btnClearHistory.setVisibility(View.GONE);
-            lineh = mGoogleMap.addPolyline(plh
-                    .color(Color.argb(150, 0, 255, 0)));
-            lineh.setPattern(PATTERN_POLYLINE_DOTTED);
+            lineh = mGoogleMap.addPolyline(plh.color(Color.argb(150, 0, 255, 0)));
+//            lineh.setPattern(PATTERN_POLYLINE_DOTTED);
+            lineh.setWidth(10);
             lineh.setJointType(JointType.ROUND);
-            line = mGoogleMap.addPolyline(pl
-                    .color(Color.argb(150, 255, 0, 0)));
-            line.setPattern(PATTERN_POLYLINE_DOTTED);
+            line = mGoogleMap.addPolyline(pl.color(Color.argb(150, 255, 0, 0)));
+//            line.setPattern(PATTERN_POLYLINE_DOTTED);
+            line.setWidth(10);
             line.setJointType(JointType.ROUND);
             if (linehis != null) {
                 linehis.remove();
@@ -809,7 +811,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //Start Location Service
         mapActivityViewModel = ViewModelProviders.of(this).get(MapActivityViewModel.class);
         startLocationService();
-
         mapActivityViewModel.getBinder().observe(this, myBinder -> {
             if (myBinder != null) {
                 Log.d("onChanged", "onMapReady: connected to service");
@@ -852,8 +853,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                         line = mGoogleMap.addPolyline(pl
                                                 .add(latLng)
                                                 .color(Color.argb(150, 255, 0, 0)));
-                                        line.setPattern(PATTERN_POLYLINE_DOTTED);
-                                        line.setJointType(JointType.BEVEL);
+//                                        line.setPattern(PATTERN_POLYLINE_DOTTED);
+                                        line.setWidth(10);
+                                        line.setJointType(JointType.ROUND);
 
                                     }
                                     if (mLastLocation == null) {
@@ -874,9 +876,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                                             plh.add(lt);
                                                         }
 
-                                                        lineh = mGoogleMap.addPolyline(plh
-                                                                .color(Color.argb(150, 0, 255, 0)));
-                                                        lineh.setPattern(PATTERN_POLYLINE_DOTTED);
+                                                        lineh = mGoogleMap.addPolyline(plh.color(Color.argb(150, 0, 255, 0)));
+//                                                        lineh.setPattern(PATTERN_POLYLINE_DOTTED);
+                                                        lineh.setWidth(10);
                                                         lineh.setJointType(JointType.ROUND);
 
                                                     } catch (Exception err) {
@@ -917,7 +919,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 mLastLocation = location;
                                 prevLatlng = latLng;
                             }
-
                         } else {
                             Log.d("getUpdateing", "onMapReady: Something is wrong");
                         }
@@ -1053,7 +1054,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                         && perms.get(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
                         && perms.get(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
                         && perms.get(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-//                    mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+                    startLocationService();
+
                     mGoogleMap.setMyLocationEnabled(true);
                 } else {
                     if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA) || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION) || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
