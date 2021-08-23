@@ -524,7 +524,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public List<String> getBlocksByPU(String puID) {
         List<String> list = new ArrayList<>();
         String selectQuery = "SELECT  * FROM " +
-                BLOCK_TABLE_NAME + " WHERE " + COL3 + " = " + puID + " ORDER BY " +
+                BLOCK_TABLE_NAME + " WHERE " + COL3 + " = \"" + puID + "\" ORDER BY " +
                 COL3 + " ASC, " +
                 COL1 + " DESC";
 
