@@ -61,7 +61,7 @@ public class LocationService extends Service {
             PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, mIntent, 0);
             Notification notification = new NotificationCompat.Builder(this, "channel")
                     .setContentTitle("Scouting")
-                    .setSmallIcon(R.drawable.logo)
+//                    .setSmallIcon(R.drawable.logo)
                     .setContentIntent(pendingIntent)
                     .build();
             startForeground(1, notification);
@@ -80,8 +80,7 @@ public class LocationService extends Service {
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
         }
     }

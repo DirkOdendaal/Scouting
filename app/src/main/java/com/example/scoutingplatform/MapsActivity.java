@@ -482,13 +482,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             if (lineh != null) {
                 lineh.remove();
             }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                if (ContextCompat.checkSelfPermission(getApplicationContext(),
-                        Manifest.permission.ACCESS_FINE_LOCATION)
-                        == PackageManager.PERMISSION_GRANTED) {
-                    mGoogleMap.setMyLocationEnabled(false);
-                }
+
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                mGoogleMap.setMyLocationEnabled(false);
             }
+
 
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
             buttonScout.setVisibility(View.GONE);
@@ -622,6 +621,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private void checkandrequestPermissions() {
         String[] PERMISSIONS = {
                 Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.FOREGROUND_SERVICE,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE,
                 Manifest.permission.READ_EXTERNAL_STORAGE,
                 Manifest.permission.CAMERA
@@ -650,7 +651,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         if (bottomSheetBehavior.getState() != BottomSheetBehavior.STATE_COLLAPSED) {
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
         } else if (hist) {
-            mGoogleMap.setMyLocationEnabled(true);
+            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                mGoogleMap.setMyLocationEnabled(true);
+            }
             buttonScout.setVisibility(View.VISIBLE);
             spinnerhist.setVisibility(View.GONE);
             btnClearHistory.setVisibility(View.GONE);
@@ -957,7 +961,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         int mapstte = userSettings.getInt("mapstate", 0);
         switch (mapstte) {
             default:
-                mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+                mGoogleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
                 break;
             case 2:
                 mGoogleMap.setMapType(GoogleMap.MAP_TYPE_SATELLITE);
@@ -966,7 +970,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 mGoogleMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
                 break;
             case 4:
-                mGoogleMap.setMapType(GoogleMap.MAP_TYPE_HYBRID);
+                mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
                 break;
         }
 
@@ -1047,18 +1051,24 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Map<String, Integer> perms = new HashMap<>();
             perms.put(Manifest.permission.CAMERA, PackageManager.PERMISSION_GRANTED);
             perms.put(Manifest.permission.ACCESS_FINE_LOCATION, PackageManager.PERMISSION_GRANTED);
+            perms.put(Manifest.permission.ACCESS_COARSE_LOCATION, PackageManager.PERMISSION_GRANTED);
             if (grantResults.length > 0) {
                 for (int i = 0; i < permissions.length; i++)
                     perms.put(permissions[i], grantResults[i]);
                 if (perms.get(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED
                         && perms.get(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+                        && perms.get(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
                         && perms.get(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED
                         && perms.get(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                     startLocationService();
 
                     mGoogleMap.setMyLocationEnabled(true);
                 } else {
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA) || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION) || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)
+                            || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                            || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION)
+                            || ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
                         showDialogOK(
                                 (dialog, which) -> {
                                     switch (which) {
