@@ -38,6 +38,7 @@ public class CapturePointActivity extends AppCompatActivity {
             recyclerView.setLayoutManager(new LinearLayoutManager(this));
             myAdapter = new RecyclerAdaptercp(this, getMyList(reqcp, reqdp));
             recyclerView.setAdapter(myAdapter);
+
             btnFin = findViewById(R.id.btnFin);
 
             btnFin.setOnClickListener(v -> {

@@ -44,16 +44,17 @@ public class RecyclerAdapterDatapointContainer extends RecyclerView.Adapter<Hold
 
     @Override
     public void onBindViewHolder(@NonNull final Holderdp holder, final int position) {
-        if (models.get(position).getDetails().length() > 4) {
-            if (models.get(position).getDetails().toLowerCase().contains("none")) {
+        holder.setIsRecyclable(false);
+        if (models.get(holder.getAdapterPosition()).getDetails().length() > 4) {
+            if (models.get(holder.getAdapterPosition()).getDetails().toLowerCase().contains("none")) {
                 holder.RelativeLayoutDP.setBackground(ContextCompat.getDrawable(context, R.color.green));
             } else {
                 holder.RelativeLayoutDP.setBackground(ContextCompat.getDrawable(context, R.color.red));
             }
             holder.btnNone.setEnabled(false);
         }
-        holder.txtDetailsRecords.setText(models.get(position).getDetails());
-        holder.txtDP.setText(models.get(position).getDataPoint());
+        holder.txtDetailsRecords.setText(models.get(holder.getAdapterPosition()).getDetails());
+        holder.txtDP.setText(models.get(holder.getAdapterPosition()).getDataPoint());
         holder.btnNone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -78,9 +79,9 @@ public class RecyclerAdapterDatapointContainer extends RecyclerView.Adapter<Hold
                 String Subblock = mDatabaseHelper.getsubblock(Block);
                 String ScoutingMethod = settings.getString("ScoutingMethod", "");
                 String Location = settings.getString("location", "");
-                String CapturePoint = models.get(position).getCapPoint();
-                String barcode = models.get(position).getBarcode();
-                String Datapoint = models.get(position).getDataPoint();
+                String CapturePoint = models.get(holder.getAdapterPosition()).getCapPoint();
+                String barcode = models.get(holder.getAdapterPosition()).getBarcode();
+                String Datapoint = models.get(holder.getAdapterPosition()).getDataPoint();
                 String Phase = "";
                 String Pos = "";
                 float Quan = 0f;
@@ -125,9 +126,9 @@ public class RecyclerAdapterDatapointContainer extends RecyclerView.Adapter<Hold
             @Override
             public void onClick(View v) {
                 Intent intentls = new Intent(context, DataPointActivity.class);
-                intentls.putExtra("CapturePoint", models.get(position).getCapPoint());
-                intentls.putExtra("DataPoint", models.get(position).getDataPoint());
-                intentls.putExtra("Barcode", models.get(position).getBarcode());
+                intentls.putExtra("CapturePoint", models.get(holder.getAdapterPosition()).getCapPoint());
+                intentls.putExtra("DataPoint", models.get(holder.getAdapterPosition()).getDataPoint());
+                intentls.putExtra("Barcode", models.get(holder.getAdapterPosition()).getBarcode());
                 intentls.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 context.startActivity(intentls);
             }

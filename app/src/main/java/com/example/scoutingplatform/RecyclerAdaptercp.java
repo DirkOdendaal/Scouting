@@ -40,24 +40,28 @@ public class RecyclerAdaptercp extends RecyclerView.Adapter<Holder> {
 
     @Override
     public void onBindViewHolder(@NonNull Holder holder, final int position) {
+        holder.setIsRecyclable(false);
+        holder.txtCP.setText(models.get(holder.getAdapterPosition()).getCPID());
+        holder.txtDetails.setText(models.get(holder.getAdapterPosition()).getDetails());
+        holder.txtBlock.setText(models.get(holder.getAdapterPosition()).getBlockName());
+        System.out.print(models.get(holder.getAdapterPosition()).getCount());
+        System.out.print( models.get(holder.getAdapterPosition()).getCountneeded());
 
-        holder.txtCP.setText(models.get(position).getCPID());
-        holder.txtDetails.setText(models.get(position).getDetails());
-        holder.txtBlock.setText(models.get(position).getBlockName());
-        if (models.get(position).getCount() >= models.get(position).getCountneeded()) {
+        if (models.get(holder.getAdapterPosition()).getCount() >= models.get(holder.getAdapterPosition()).getCountneeded()) {
+
             holder.CPrelativeLayout.setBackground(ContextCompat.getDrawable(context, R.drawable.edgesgreen));
-        } else if (models.get(position).getCount() < models.get(position).getCountneeded() && models.get(position).getCount() > 0) {
+        } else if (models.get(holder.getAdapterPosition()).getCount() < models.get(holder.getAdapterPosition()).getCountneeded() && models.get(holder.getAdapterPosition()).getCount() > 0) {
             holder.CPrelativeLayout.setBackground(ContextCompat.getDrawable(context, R.drawable.edgesblue));
         }
         holder.btnView.setOnClickListener(v -> {
-            if (models.get(position).isForceScan() && models.get(position).getBarcode().isEmpty()) {
+            if (models.get(holder.getAdapterPosition()).isForceScan() && models.get(holder.getAdapterPosition()).getBarcode().isEmpty()) {
 
                 Intent intents = new Intent(context, CameraScanning.class);
-                intents.putExtra("CapturePoint", models.get(position).getCP());
+                intents.putExtra("CapturePoint", models.get(holder.getAdapterPosition()).getCP());
                 context.startActivity(intents);
             } else {
                 Intent intentls = new Intent(context, DataPointContainerActivity.class);
-                intentls.putExtra("CapturePoint", models.get(position).getCP());
+                intentls.putExtra("CapturePoint", models.get(holder.getAdapterPosition()).getCP());
                 String barcode ="";
                 if(models.get(position).getBarcode() != null){
                     barcode = models.get(position).getBarcode();

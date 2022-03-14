@@ -103,7 +103,7 @@ public class RecyclerAdapterdp extends RecyclerView.Adapter<RecyclerAdapterdp.Re
             }
             else
             {
-                Log.d("DELETE", "onBindViewHolder: cannot insert duplicateeeeeeeeeeeeeeeeeeeeeee");
+                Log.d("DELETE", "onBindViewHolder: cannot insert duplicate");
             }
 
             Log.d("Position", "onBindViewHolder: pos " + position);
